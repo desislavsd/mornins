@@ -47,7 +47,9 @@ useIntersectionObserver(
         </div>
       </div>
     </template>
-    <div v-else-if="loading">Loading...</div>
+    <div v-else-if="loading" class="text-center h-20 grid place-items-center">
+      <i class="i-svg-spinners-3-dots-scale !h-8 !w-8"></i>
+    </div>
     <div class="flex fixed bottom-6 left-0 w-full justify-center">
       <BookToolbar v-bind="{ item, date }" v-model:size="size" />
     </div>

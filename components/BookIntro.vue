@@ -4,10 +4,6 @@ const props = defineProps<{
   shrinked: boolean
 }>()
 const { item, date, day, month } = useBook()
-
-const emit = defineEmits(['update:date'])
-
-const dateModel = useVModel(date, 'value', emit)
 </script>
 <template>
   <Card
@@ -54,7 +50,7 @@ const dateModel = useVModel(date, 'value', emit)
           </Button>
         </PopoverTrigger>
         <PopoverContent class="w-auto p-0">
-          <Calendar v-model="dateModel" />
+          <Calendar v-model="date" />
         </PopoverContent>
       </Popover>
     </CardFooter>
