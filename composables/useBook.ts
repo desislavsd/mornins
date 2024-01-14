@@ -63,7 +63,7 @@ export function useBook() {
       const day = getDayOfYear(date.value)
 
       const response = await fetch(
-        `/books/${$router.currentRoute.value.params.id}/text.txt?day=${day}`
+        `/books/${$router.currentRoute.value.params.id}/text.txt`
       )
 
       const text = await response.text()

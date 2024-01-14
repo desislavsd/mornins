@@ -9,6 +9,8 @@ const { item, date, chapter, loading } = useBook()
 
 const bookIntroRef = ref(null)
 const scrolled = ref(false)
+const debouncedScrolled = debouncedRef(scrolled, 200)
+
 useIntersectionObserver(
   bookIntroRef,
   ([{ isIntersecting }], observerElement) => {
@@ -29,7 +31,7 @@ useIntersectionObserver(
     <BookIntro
       v-bind="{ item }"
       v-model:date="date"
-      :shrinked="scrolled"
+      :shrinked="debouncedScrolled"
     ></BookIntro>
     <template v-if="chapter">
       <div class="container py-14 px-6 text-justify">
