@@ -20,12 +20,15 @@ const sizes = ['prose-sm', '', 'prose-lg', 'prose-xl']
 
 const sizeModel = useVModel(props, 'size', emit)
 
+const bounds = inject('bounds') as any
+
 function toggleSize() {
   const index = sizes.indexOf(sizeModel.value)
   const nextIndex = (index + 1) % sizes.length
   sizeModel.value = sizes[nextIndex]
   console.log({ index, nextIndex })
 }
+
 sleep(2000).then(() => {
   shrinked.value = true
 })
@@ -37,6 +40,7 @@ function copyUrl() {
     description: `${item.value.name}${unref(day)} - ${unref(month)}`,
   })
 }
+
 async function share() {
   if (!navigator.share) return copyUrl()
   try {
@@ -50,16 +54,20 @@ async function share() {
     copyUrl()
   }
 }
+const classes = computed(() => {
+  const bounded = bounds.start || bounds.end
+
+  return {
+    nav: bounded && '!scale-100 !pointer-events-auto',
+    dot: bounded && '!scale-0 !transition-delay-0',
+  }
+})
 </script>
 <template>
-  <div
-    class="relative"
-    @mouseenter="shrinked = false"
-    @mouseleave="shrinked = true"
-  >
+  <div class="relative group">
     <nav
-      class="join transition duration-200 relative z-10"
-      :class="shrinked ? 'scale-0 pointer-events-none' : ''"
+      class="join transition duration-200 relative z-10 scale-0 pointer-events-none group-hover:scale-100 group-hover:pointer-events-auto"
+      :class="classes.nav"
     >
       <Button as-child>
         <nuxt-link to="/" class="join-item">
@@ -77,8 +85,8 @@ async function share() {
       </Button>
     </nav>
     <div
-      class="aspect-square rounded-full absolute transition duration-200 bg-foreground h-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-      :class="shrinked ? 'transition-delay-200' : 'scale-0'"
+      class="aspect-square rounded-full absolute transition duration-200 bg-foreground h-4 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-delay-200 group:hover-transition-delay-0 group-hover:scale-0"
+      :class="classes.dot"
     ></div>
   </div>
 </template>
