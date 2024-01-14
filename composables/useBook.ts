@@ -19,6 +19,7 @@ const key = Symbol('useBook') as InjectionKey<{
   day: ComputedRef<number>
   month: ComputedRef<string>
   url: ComputedRef<string>
+  next: (prev: boolean) => void
 }>
 
 export function useBook() {
@@ -56,23 +57,20 @@ export function useBook() {
         .slice(0, 10)}`
   )
 
+  const id = computed(() => $router.currentRoute.value.params.id)
+
   const loading = ref(false)
 
   const text = asyncComputed(
     async () => {
-      const day = getDayOfYear(date.value)
+      const response = await fetch(`/books/${id.value}/text.txt`)
 
-      const response = await fetch(
-        `/books/${$router.currentRoute.value.params.id}/text.txt`
-      )
-
-      const text = await response.text()
-
-      return parseText(text)
+      return parseText(await response.text())
     },
     null,
     { evaluating: loading }
   )
+
   const chapter = computed(() => {
     const day = getDayOfYear(date.value)
 
@@ -87,10 +85,15 @@ export function useBook() {
     day: computed(() => date.value.getDate()),
     month: computed(() => monthsNames[date.value.getMonth()]),
     url,
+    next,
   }
 
   provide(key, data)
 
+  function next(prev: boolean) {
+    const newDate = new Date(+date.value + (-1) ** +prev * 24 * 60 * 60 * 1000)
+    date.value = newDate
+  }
   return data
 }
 
@@ -108,7 +111,7 @@ function parseText(text: string) {
 }
 
 function parseChapter(text: string) {
-  const rx = /(?<day>\d+\s+[а-я]+)\n+(?<title>[^\n]+)\n+(?<verse>[^\)]+\))/im
+  const rx = /(?<day>\d+\s+[а-я]+)\n+(?<title>[^\n]+)\n+(?<verse>[^\)]+\)\.?)/im
   const {
     groups: { day, title, verse },
   } = text.match(rx) ?? ({} as any)

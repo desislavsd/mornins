@@ -1,12 +1,30 @@
 <script lang="tsx" setup>
 import { useBook } from '@/composables/useBook'
+import { sleep } from '#imports'
 
+const el = ref(null)
+const swipe = useSwipe(el)
 const size = useLocalStorage('size', 'prose-sm')
+const { item, date, chapter, loading, next } = useBook()
 
-const { item, date, chapter, loading } = useBook()
+watch(swipe.isSwiping, (swiping) => {
+  if (swiping) return
+
+  const dir = swipe.direction.value
+
+  if (!['left', 'right'].includes(dir)) return
+
+  next(dir == 'right')
+})
+
+watch(chapter, async () => {
+  if (document.documentElement.scrollTop < 50) return
+  await sleep(500)
+  document.documentElement.scrollTo({ top: 2, behavior: 'smooth' })
+})
 </script>
 <template>
-  <div>
+  <div ref="el">
     <!-- <div class="flex">
       <img
         :src="`/books/${route.params.id}/img.webp`"
