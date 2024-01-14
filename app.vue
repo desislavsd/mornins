@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import { registerSW } from 'virtual:pwa-register'
 const updateSW = registerSW({
   onNeedRefresh() {

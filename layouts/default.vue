@@ -1,3 +1,3 @@
 <template>
-  <NuxtPage :page-key="`${$router.currentRoute.value.name}`" />
+  <NuxtPage :page-key="(r) => String(r.name)" />
 </template>
