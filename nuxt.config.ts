@@ -146,6 +146,7 @@ export default defineNuxtConfig({
       short_name: displayName,
       description,
       theme_color: '#ffffff',
+      orientation: 'portrait',
       icons: [
         {
           src: 'android-chrome-192x192.png',
