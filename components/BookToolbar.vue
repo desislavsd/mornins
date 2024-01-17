@@ -71,7 +71,7 @@ const classes = computed(() => {
     >
       <Button as-child>
         <nuxt-link to="/" class="join-item">
-          <i class="i-carbon-book"></i>
+          <i class="i-carbon-home"></i>
         </nuxt-link>
       </Button>
       <Button class="join-item" @click="share"

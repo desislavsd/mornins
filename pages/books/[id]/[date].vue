@@ -5,8 +5,9 @@ import { sleep } from '#imports'
 const el = ref(null)
 const swipe = useSwipe(el)
 const size = useLocalStorage('size', 'prose-sm')
-const { item, date, chapter, loading, next } = useBook()
+const { item, date, chapter, loading, next, read } = useBook()
 
+const bounds = ref()
 watch(swipe.isSwiping, (swiping) => {
   if (swiping) return
 
@@ -20,32 +21,28 @@ watch(swipe.isSwiping, (swiping) => {
 watch(chapter, async () => {
   if (document.documentElement.scrollTop < 50) return
   await sleep(500)
-  document.documentElement.scrollTo({ top: 2, behavior: 'smooth' })
+  document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
 })
 </script>
 <template>
   <div ref="el">
-    <!-- <div class="flex">
-      <img
-        :src="`/books/${route.params.id}/img.webp`"
-        class="w-10 object-cover rounded-md"
-      />
-    </div> -->
-    <AriaBoundaries #default="bounds">
-      <BookIntro
-        v-bind="{ item }"
-        v-model:date="date"
-        :shrinked="!bounds.start"
-      ></BookIntro>
+    <!-- <span class="fixed bottom-0 right-0 m-4">{{ read ? '✔︎' : '' }}</span> -->
+    <AriaBoundaries v-model="bounds" #default="bounds">
+      <BookIntro :shrinked="!bounds.start"></BookIntro>
       <template v-if="chapter">
-        <div class="container py-14 px-6 text-justify">
+        <div class="container pt-10 pb-12 px-6 text-justify">
           <h1 class="text-xl text-center font-bold">
             {{ chapter.title }}
           </h1>
           <div class="block italic text-center mb-8 opacity-50">
             {{ chapter.day }}
           </div>
-          <div class="prose" :class="size">
+          <div class="relative prose" :class="size">
+            <ProgressDetector
+              v-model="read"
+              :key="chapter?.day"
+              class="absolute inset-0"
+            />
             <blockquote>{{ chapter.verse }}</blockquote>
             <div v-html="chapter.content"></div>
           </div>

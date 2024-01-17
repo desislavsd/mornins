@@ -1,7 +1,7 @@
 import books from '@/assets/registry.json'
 import { type InjectionKey, type WritableComputedRef } from 'vue'
 import { useNuxtApp } from '#imports'
-import { monthsNames } from '#imports'
+import { monthsNames, getDayOfYear } from '@/utils'
 
 const key = Symbol('useBook') as InjectionKey<{
   item: ComputedRef<(typeof books)[number]>
@@ -20,7 +20,14 @@ const key = Symbol('useBook') as InjectionKey<{
   month: ComputedRef<string>
   url: ComputedRef<string>
   next: (prev: boolean) => void
+  read: Ref<boolean>
 }>
+
+export const storage = useLocalStorage('read', {
+  book: '',
+  year: new Date().getFullYear(),
+  days: Array(366).fill('-').join(''),
+})
 
 export function useBook() {
   let data = inject(key, null)
@@ -71,10 +78,26 @@ export function useBook() {
     { evaluating: loading }
   )
 
-  const chapter = computed(() => {
-    const day = getDayOfYear(date.value)
+  const index = computed(() => getDayOfYear(date.value) - 1)
 
-    return text.value?.[day - 1]
+  const chapter = computed(() => text.value?.[index.value])
+
+  const read = computed({
+    get() {
+      return storage.value.days[index.value] === '+'
+    },
+    set(value) {
+      if (!value) return
+
+      storage.value.days = storage.value.days
+        .split('')
+        .with(index.value, '+')
+        .join('')
+    },
+  })
+
+  watchEffect(() => {
+    storage.value.book = `${id.value}`
   })
 
   data = {
@@ -86,6 +109,7 @@ export function useBook() {
     month: computed(() => monthsNames[date.value.getMonth()]),
     url,
     next,
+    read,
   }
 
   provide(key, data)
@@ -97,21 +121,13 @@ export function useBook() {
   return data
 }
 
-function getDayOfYear(date: Date) {
-  const start = new Date(date.getFullYear(), 0, 0)
-  const diff = date.getTime() - start.getTime()
-  const oneDay = 1000 * 60 * 60 * 24
-  let day = Math.floor(diff / oneDay)
-  // adjust for non leap years
-  if (day >= 60 && date.getFullYear() % 4 !== 0) return (day += 1)
-  return day
-}
+export default useBook
 
 function parseText(text: string) {
   return text.split('\n\n\n').map(parseChapter)
 }
 
-function parseChapter(text: string) {
+function parseChapter(text: string, index: number) {
   const rx = /(?<day>\d+\s+[а-я]+)\n+(?<title>[^\n]+)\n+(?<verse>[^\)]+\)\.?)/im
   const {
     groups: { day, title, verse },
@@ -122,6 +138,7 @@ function parseChapter(text: string) {
     .map((p) => `<p>${p}</p>`)
     .join('')
   return {
+    index,
     day,
     title,
     verse,

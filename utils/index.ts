@@ -23,3 +23,30 @@ export const getMonthNamesInBG = () => {
 }
 
 export const monthsNames = getMonthNamesInBG()
+
+export function getDayOfYear(date: Date) {
+  const start = new Date(date.getFullYear(), 0, 0)
+  const diff = date.getTime() - start.getTime()
+  const oneDay = 1000 * 60 * 60 * 24
+  let day = Math.floor(diff / oneDay)
+  // adjust for non leap years
+  if (day >= 60 && date.getFullYear() % 4 !== 0) return (day += 1)
+  return day
+}
+
+export const dayFormatterShort = new Intl.DateTimeFormat('en-US', {
+  weekday: 'narrow',
+})
+
+export function weekDaysNames(d = new Date()) {
+  return getWeekDates(d).map((date) => dayFormatterShort.format(date))
+}
+
+export function getWeekDates(d: Date = new Date()) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(d)
+
+    date.setDate(date.getDate() - date.getDay() + i)
+    return date
+  })
+}

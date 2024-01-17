@@ -1,32 +1,31 @@
 <script lang="tsx" setup>
+const model = defineModel()
 const DEBOUNCE = 100
-const start = templateRef('start')
-const end = templateRef('end')
-const appeared = {
-  start: ref(false),
-  end: ref(false),
-}
-
-useIntersectionObserver(
-  start as any,
-  ([{ isIntersecting }]) => (appeared.start.value = isIntersecting)
-)
-useIntersectionObserver(
-  end as any,
-  ([{ isIntersecting }]) => (appeared.end.value = isIntersecting)
-)
-
-const bounds = reactive({
-  start: debouncedRef(appeared.start, DEBOUNCE),
-  end: debouncedRef(appeared.end, DEBOUNCE),
+const value = reactive({
+  start: false,
+  end: false,
 })
+
+const bounds = reactive(
+  Object.fromEntries(
+    Object.entries(value).map(([key]) => [
+      key,
+      debouncedRef(toRef(value, key as keyof typeof value), DEBOUNCE),
+    ])
+  )
+)
+
+watchEffect(() => {
+  model.value = bounds
+})
+
 provide('bounds', bounds)
 </script>
 <template>
   <div>
-    <span ref="start"></span>
+    <IntersectionPoint v-model="value.start" />
     <slot v-bind="bounds" />
-    <span ref="end">&nbsp;</span>
+    <IntersectionPoint v-model="value.end"> &nbsp; </IntersectionPoint>
   </div>
 </template>
 <style></style>
