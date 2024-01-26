@@ -3,20 +3,29 @@ import { useBook } from '@/composables/useBook'
 import { sleep } from '#imports'
 
 const el = ref(null)
-const swipe = useSwipe(el)
+let swipeStartAt = 0
+
+const swipe = useSwipe(el, {
+  onSwipeStart(e) {
+    swipeStartAt = Date.now()
+  },
+  onSwipeEnd(e, dir) {
+    // ignore vertical swipes
+    if (Math.abs(swipe.lengthX.value) <= Math.abs(swipe.lengthY.value)) return
+    // ignore slow swipes
+    if (Date.now() - swipeStartAt > 300) return
+    // ignore short swipes
+    if (Math.abs(swipe.lengthX.value) < 80) return
+
+    if (!['left', 'right'].includes(dir)) return
+
+    next(dir == 'right')
+  },
+})
 const size = useLocalStorage('size', 'prose-sm')
 const { item, date, chapter, loading, next, read } = useBook()
 
 const bounds = ref()
-watch(swipe.isSwiping, (swiping) => {
-  if (swiping) return
-
-  const dir = swipe.direction.value
-
-  if (!['left', 'right'].includes(dir)) return
-
-  next(dir == 'right')
-})
 
 watch(chapter, async () => {
   if (document.documentElement.scrollTop < 50) return
