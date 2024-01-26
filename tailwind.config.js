@@ -23,6 +23,8 @@ module.exports = {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        dark: 'hsl(var(--dark))',
+        light: 'hsl(var(--light))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
@@ -94,4 +96,8 @@ module.exports = {
     logs: false, // Shows info about daisyUI version and used config in the console when building your CSS
     themeRoot: ':root', // The element that receives theme color CSS variables
   },
+}
+
+:root {
+  @apply bg-dark
 }

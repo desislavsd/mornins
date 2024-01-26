@@ -72,9 +72,9 @@ function next() {
         ></i>
       </Button>
     </div>
-    <div class="flex justify-between mt-2">
+    <div class="flex gap-[4%] mt-2">
       <Button
-        class="aspect-square grid place-items-center"
+        class="aspect-square h-auto w-auto min-w-0 grid place-items-center flex-1"
         as-child
         v-for="(item, i) in state.items"
         :variant="item.read ? 'default' : 'outline'"
@@ -85,7 +85,11 @@ function next() {
       </Button>
     </div>
     <p class="mt-2">
-      Keep pushing, you previous record was {{ state.streaks.at(-2) }} days.
+      {{
+        state.streaks.at(-2)
+          ? `Keep up, you previous record was ${state.streaks.at(-2)} days.`
+          : `This is your first streak for the year.`
+      }}
     </p>
   </div>
 </template>

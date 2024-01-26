@@ -7,6 +7,9 @@
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
+    --light: 0 0% 100%;
+    --dark: 240 10% 3.9%;
+
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
@@ -124,4 +127,19 @@
   & :where(tbody tr, thead):not(:where([class~='not-prose'] *)) {
     border-bottom-color: theme(colors.foreground/0.2);
   }
+}
+
+.grained:after {
+  content: '';
+  display: block;
+  background: repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/3000px
+      3000px,
+    repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 40% 40%/3000px
+      3000px;
+  background-blend-mode: difference;
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  z-index: 99999;
+  pointer-events: none;
 }

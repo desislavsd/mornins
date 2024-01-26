@@ -12,8 +12,6 @@ const { toast } = useToast()
 
 const { item, date, day, month, url } = useBook()
 
-const shrinked = ref(false)
-
 const emit = defineEmits(['update:size'])
 
 const sizes = ['prose-sm', '', 'prose-lg', 'prose-xl']
@@ -26,12 +24,7 @@ function toggleSize() {
   const index = sizes.indexOf(sizeModel.value)
   const nextIndex = (index + 1) % sizes.length
   sizeModel.value = sizes[nextIndex]
-  console.log({ index, nextIndex })
 }
-
-sleep(2000).then(() => {
-  shrinked.value = true
-})
 
 function copyUrl() {
   navigator.clipboard.writeText(url.value)

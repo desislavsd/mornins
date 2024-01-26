@@ -30,14 +30,14 @@ watch(chapter, async () => {
     <AriaBoundaries v-model="bounds" #default="bounds">
       <BookIntro :shrinked="!bounds.start"></BookIntro>
       <template v-if="chapter">
-        <div class="container pt-10 pb-12 px-6 text-justify">
-          <h1 class="text-xl text-center font-bold">
+        <div class="prose pt-10 pb-12 px-6 text-justify mx-auto" :class="size">
+          <h3 class="text-center font-bold">
             {{ chapter.title }}
-          </h1>
+          </h3>
           <div class="block italic text-center mb-8 opacity-50">
             {{ chapter.day }}
           </div>
-          <div class="relative prose" :class="size">
+          <div class="relative">
             <ProgressDetector
               v-model="read"
               :key="chapter?.day"
