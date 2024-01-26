@@ -7,8 +7,13 @@ const timer = useTimestamp({ controls: true, interval: 1000 })
 let READ_AT = 0
 
 const points = ref<{ intersecting: boolean; count: number }[]>([])
-
+const endPoint = ref(false)
 const dimentions = ref({ width: 0, height: 0 })
+
+const allPointsRead = computed(
+  () => points.value.length && points.value.every((e) => e.count >= READ_AT)
+)
+
 // control when timer is running
 watch(idle.idle, (idle) => (idle ? timer.pause() : timer.resume()))
 
@@ -19,8 +24,7 @@ watch(timer.timestamp, (time) => {
 })
 
 watchEffect(() => {
-  model.value =
-    points.value.length && points.value.every((e) => e.count >= READ_AT)
+  model.value = unref(allPointsRead) && endPoint.value
 })
 
 useResizeObserver(el, (entries) => {
@@ -41,6 +45,7 @@ watch([dimentions], () => {
     intersecting: false,
     count: 0,
   }))
+  endPoint.value = false
 })
 
 function generatePoints() {}
@@ -48,6 +53,10 @@ function generatePoints() {}
 <template>
   <div ref="el" class="pointer-events-none flex flex-col justify-around">
     <IntersectionPoint v-for="point in points" v-model="point.intersecting" />
+    <IntersectionPoint
+      @update:model-value="endPoint ||= allPointsRead && $event"
+      class="absolute bottom-0 left-0 right-0"
+    />
   </div>
 </template>
 <style></style>
