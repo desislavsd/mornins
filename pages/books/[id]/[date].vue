@@ -45,22 +45,28 @@ watch(chapter, async () => {
       <BookIntro :shrinked="!bounds.start"></BookIntro>
       <template v-if="chapter">
         <div class="prose pt-10 pb-12 px-6 text-justify mx-auto" :class="size">
-          <h3 class="text-center font-bold">
-            {{ chapter.title }}
-          </h3>
-          <div class="block italic text-center mb-8 opacity-50">
-            {{ chapter.day }}
-          </div>
-          <div class="relative">
-            <ProgressDetector
-              :model-value="read"
-              @update:modelValue="read = $event || read"
-              :key="chapter?.day"
-              class="absolute inset-0"
-            />
-            <blockquote>{{ chapter.verse }}</blockquote>
-            <div v-html="content"></div>
-          </div>
+          <template v-if="content.length">
+            <h3 class="text-center font-bold">
+              {{ chapter.title }}
+            </h3>
+            <div class="block italic text-center mb-8 opacity-50">
+              {{ chapter.day }}
+            </div>
+            <div class="relative">
+              <ProgressDetector
+                :model-value="read"
+                @update:modelValue="read = $event || read"
+                :key="chapter?.day"
+                class="absolute inset-0"
+              />
+              <blockquote>{{ chapter.verse }}</blockquote>
+              <div v-html="content"></div>
+            </div>
+          </template>
+          <p v-else class="text-center">
+            This book has no data for this day
+            <i class="i-carbon-face-dissatisfied"></i>
+          </p>
         </div>
       </template>
       <div v-else-if="loading" class="text-center h-20 grid place-items-center">
