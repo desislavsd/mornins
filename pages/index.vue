@@ -53,7 +53,7 @@ const scroll = useWindowScroll()
         <StreakSection />
 
         <!-- BOOKS -->
-        <div>
+        <div class="grid gap-3">
           <BookCard v-for="item in books" v-bind="{ item }" />
         </div>
       </div>
