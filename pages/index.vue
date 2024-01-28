@@ -18,7 +18,7 @@ const sortedBooks = computed(() =>
       <div class="relative">
         <!-- HEADER -->
         <header
-          class="absolute top-0 left-0 w-full z-10 flex justify-between text-white z-10 p-6"
+          class="absolute top-0 left-0 w-full z-30 flex justify-between text-white z-10 p-6"
         >
           <h1 class="flex items-center gap-2">
             <i class="i-carbon-book !w-6 !h-6"></i>
@@ -30,7 +30,10 @@ const sortedBooks = computed(() =>
         </header>
         <!-- COVER -->
         <div
-          class="relative aspect-[9/12] landscape:max-lg:aspect-auto landscape:max-lg:h-full overflow-hidden"
+          class="relative aspect-[9/12] landscape:max-lg:aspect-auto landscape:max-lg:h-full overflow-hidden -mb-[calc(var(--ycut))] z-20 landscape:max-lg:mb-0 landscape:max-lg:![clip-path:none]"
+          :style="`
+          clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - var(--cut)));
+        `"
         >
           <img
             :src="cover"
@@ -48,10 +51,7 @@ const sortedBooks = computed(() =>
       </div>
 
       <div
-        class="relative z-10 grid gap-6 content-start p-6 bg-background -mt-[calc(var(--ycut))] landscape:max-lg:mt-0 landscape:max-lg:[clip-path:none] landscape:max-lg:overflow-auto"
-        :style="`
-        clip-path: polygon(0 0, 100% var(--cut), 100% 100%, 0 100%);
-      `"
+        class="relative z-10 grid gap-6 content-start p-6 bg-background landscape:max-lg:overflow-auto"
       >
         <!-- STREAK -->
         <StreakSection />
