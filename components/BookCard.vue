@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import Books from '@/assets/registry.json'
+const lastBook = useLastBook()
 
 const props = defineProps<{
   item: (typeof Books)[number]
@@ -20,7 +21,9 @@ const { item } = reactive(props)
     </CardContent> -->
     <CardFooter class="pt-6">
       <Button as-child>
-        <nuxt-link :to="`/books/${item.id}/today`">Read</nuxt-link>
+        <nuxt-link :to="`/books/${item.id}/today`">{{
+          lastBook.value?.id == item.id ? 'Continue' : 'Read'
+        }}</nuxt-link>
       </Button>
     </CardFooter>
   </Card>

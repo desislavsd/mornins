@@ -3,7 +3,9 @@ import books from '@/assets/registry.json'
 const lastBookId = useLocalStorage('lastBookId', books.at(0)?.id)
 
 const lastBook = computed(
-  () => books.find((e) => e.id === lastBookId.value) || books.at(0)
+  () =>
+    books.find((e) => e.id === lastBookId.value) ||
+    (books.at(0) as (typeof books)[number])
 )
 
 export default useLastBook

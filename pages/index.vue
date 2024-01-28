@@ -2,6 +2,10 @@
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
 const scroll = useWindowScroll()
+const lastBook = useLastBook()
+const sortedBooks = computed(() =>
+  books.slice().sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
+)
 </script>
 <template>
   <div
@@ -54,7 +58,7 @@ const scroll = useWindowScroll()
 
         <!-- BOOKS -->
         <div class="grid gap-3">
-          <BookCard v-for="item in books" v-bind="{ item }" />
+          <BookCard v-for="item in sortedBooks" v-bind="{ item }" />
         </div>
       </div>
     </div>
