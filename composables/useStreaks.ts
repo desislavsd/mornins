@@ -1,6 +1,17 @@
 import useToday from './useToday'
 
+const oldStorage = useLocalStorage('read', {
+  days: defaultStreak().data,
+  migrated: true,
+})
+
 const storage = useLocalStorage('streak', defaultStreak())
+
+// TODO: migrate old storage; remove someday
+if (!oldStorage.value.migrated) {
+  storage.value.data = oldStorage.value.days
+  oldStorage.value.migrated = true
+}
 
 const { index, date } = useToday()
 
@@ -29,15 +40,9 @@ const today = useStreakDay()
 
 const streaks = computed(() => {
   // today should be excluded if not done
-  const i = index.value + (today.done ? 1 : 0)
+  const i = index.value + (unref(today.done) ? 1 : 0)
   const data = storage.value.data.slice(0, i)
-
-  return [0].concat(
-    data
-      .split(/-+/)
-      .filter(Boolean)
-      .map((e) => e.length)
-  )
+  return [0].concat(data.split(/-+/).map((e) => e.length))
 })
 
 const stats = reactive({
