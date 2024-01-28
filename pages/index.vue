@@ -57,7 +57,7 @@ const sortedBooks = computed(() =>
         <StreakSection />
 
         <!-- BOOKS -->
-        <div class="grid gap-3">
+        <div class="flex flex-col gap-3 overflow-hidden">
           <BookCard v-for="item in sortedBooks" v-bind="{ item }" />
         </div>
       </div>
