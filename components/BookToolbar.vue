@@ -1,8 +1,6 @@
 <script lang="ts" setup>
-import Books from '@/assets/registry.json'
-import { sleep } from '@/utils'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { useBook } from '@/composables/useBook'
+import useReadPage from '@/composables/useReadPage'
 
 const props = defineProps<{
   size: string
@@ -10,7 +8,7 @@ const props = defineProps<{
 
 const { toast } = useToast()
 
-const { item, date, day, month, url } = useBook()
+const { book, day, month, url } = useReadPage()
 
 const emit = defineEmits(['update:size'])
 
@@ -30,7 +28,7 @@ function copyUrl() {
   navigator.clipboard.writeText(url.value)
   toast({
     title: 'Линка към страницата е копиран',
-    description: `${item.value.name}${unref(day)} - ${unref(month)}`,
+    description: `${book.value?.name}: ${unref(day)} - ${unref(month)}`,
   })
 }
 
@@ -38,8 +36,8 @@ async function share() {
   if (!navigator.share) return copyUrl()
   try {
     await navigator.share({
-      title: `${item.value.name}${unref(day)} - ${unref(month)}`,
-      text: `${item.value.name}${unref(day)} - ${unref(month)}`,
+      title: `${book.value?.name}: ${unref(day)} - ${unref(month)}`,
+      text: `${book.value?.name}: ${unref(day)} - ${unref(month)}`,
       url: url.value,
     })
   } catch (error) {

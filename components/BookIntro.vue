@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { useBook } from '@/composables/useBook'
+import useReadPage from '@/composables/useReadPage'
 const props = defineProps<{
   shrinked: boolean
 }>()
-const { item, date, day, month, read } = useBook()
+const { book, date, day, month, read } = useReadPage()
 const transition =
   'transition-all duration-300 [will-change:padding] transition-delay-1000'
 </script>
@@ -17,11 +17,11 @@ const transition =
       <CardHeader class="p-0">
         <CardTitle
           class="whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
-          >{{ item.name }}</CardTitle
+          >{{ book?.name }}</CardTitle
         >
         <transition>
           <CardDescription v-show="!shrinked">{{
-            item.author
+            book?.author
           }}</CardDescription>
         </transition>
       </CardHeader>

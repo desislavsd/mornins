@@ -100,7 +100,9 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'prompt',
     workbox: {
-      globPatterns: ['**/*.{js,css,html,ico,png,webp,jpg,jpeg,svg,zip,txt}'],
+      globPatterns: [
+        '**/*.{js,css,html,ico,png,webp,jpg,jpeg,svg,zip,txt,json}',
+      ],
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

@@ -1,5 +1,5 @@
 <script lang="tsx" setup>
-import { useBook } from '@/composables/useBook'
+import useReadPage from '@/composables/useReadPage'
 import { sleep } from '#imports'
 
 const el = ref(null)
@@ -22,10 +22,16 @@ const swipe = useSwipe(el, {
     next(dir == 'right')
   },
 })
+
 const size = useLocalStorage('size', 'prose-sm')
-const { item, date, chapter, loading, next, read } = useBook()
+const { chapter, loading, next, read } = useReadPage()
 
 const bounds = ref()
+
+const content = computed(() => {
+  if (!chapter.value) return ''
+  return chapter.value.content.map((e: any) => `<p>${e}</p>`).join('')
+})
 
 watch(chapter, async () => {
   if (document.documentElement.scrollTop < 50) return
@@ -35,7 +41,6 @@ watch(chapter, async () => {
 </script>
 <template>
   <div ref="el">
-    <!-- <span class="fixed bottom-0 right-0 m-4">{{ read ? '✔︎' : '' }}</span> -->
     <AriaBoundaries v-model="bounds" #default="bounds">
       <BookIntro :shrinked="!bounds.start"></BookIntro>
       <template v-if="chapter">
@@ -48,12 +53,13 @@ watch(chapter, async () => {
           </div>
           <div class="relative">
             <ProgressDetector
-              v-model="read"
+              :model-value="read"
+              @update:modelValue="read = $event || read"
               :key="chapter?.day"
               class="absolute inset-0"
             />
             <blockquote>{{ chapter.verse }}</blockquote>
-            <div v-html="chapter.content"></div>
+            <div v-html="content"></div>
           </div>
         </div>
       </template>
@@ -61,7 +67,7 @@ watch(chapter, async () => {
         <i class="i-svg-spinners-3-dots-scale !h-8 !w-8"></i>
       </div>
       <div class="flex fixed bottom-6 left-0 w-full justify-center">
-        <BookToolbar v-bind="{ item, date }" v-model:size="size" />
+        <BookToolbar v-model:size="size" />
       </div>
     </AriaBoundaries>
   </div>

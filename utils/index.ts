@@ -1,6 +1,11 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { camelize, getCurrentInstance, toHandlerKey } from 'vue'
+import {
+  camelize,
+  getCurrentInstance,
+  toHandlerKey,
+  type InjectionKey,
+} from 'vue'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -24,7 +29,8 @@ export const getMonthNamesInBG = () => {
 
 export const monthsNames = getMonthNamesInBG()
 
-export function getDayOfYear(date: Date) {
+export function getDayOfYear(date: Date | number) {
+  date = new Date(date)
   const start = new Date(date.getFullYear(), 0, 0)
   const diff = date.getTime() - start.getTime()
   const oneDay = 1000 * 60 * 60 * 24
@@ -49,4 +55,25 @@ export function getWeekDates(d: Date = new Date()) {
     date.setDate(date.getDate() - date.getDay() + i)
     return date
   })
+}
+
+export function toSelfProvidingHook<TArgs extends unknown[], TReturn>(
+  hook: (...args: TArgs) => TReturn,
+  key?: string
+) {
+  const injectionKey: InjectionKey<TReturn | null> = Symbol(key)
+
+  return function (...args: TArgs) {
+    let data = inject<TReturn | null>(injectionKey, null)
+    if (data) return data
+    data = hook(...args)
+    provide(injectionKey, data)
+    return data
+  }
+}
+
+function useMe() {
+  return {
+    value: ref(false),
+  }
 }
