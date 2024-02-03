@@ -44,6 +44,14 @@ export const dayFormatterShort = new Intl.DateTimeFormat('en-US', {
   weekday: 'narrow',
 })
 
+export const dayFormatterLong = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+})
+
+export const monthFormatterLong = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+})
+
 export function weekDaysNames(d = new Date()) {
   return getWeekDates(d).map((date) => dayFormatterShort.format(date))
 }
