@@ -1,6 +1,7 @@
 <script lang="tsx" setup>
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
+import coverBig from '@/assets/imgs/cover-xl.webp'
 const scroll = useWindowScroll()
 const lastBook = useLastBook()
 const { time } = useToday()
@@ -21,11 +22,14 @@ const sortedBooks = computed(() =>
     >
       <!-- HEADER -->
       <AppHeader class="relative z-10 w-full" />
-      <img
-        :src="cover"
-        alt=""
-        class="pointer-events-none absolute inset-0 w-full h-full object-cover filter grayscale portrait:max-md:translate-y-[calc(var(--top)*1px)]"
-      />
+      <picture>
+        <source :srcset="coverBig" media="(min-width: 768px)" />
+        <img
+          :src="cover"
+          alt="cover"
+          class="will-change-transform pointer-events-none absolute inset-0 w-full h-full object-cover filter grayscale portrait:max-md:translate-y-[calc(var(--top)*1px)]"
+        />
+      </picture>
       <div
         class="p-6 flex-1 flex justify-between flex-col xl:flex-row xl:items-end"
       >
