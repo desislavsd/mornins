@@ -1,11 +1,20 @@
 <script lang="ts" setup>
 import useReadPage from '@/composables/useReadPage'
-const props = defineProps<{
+import { datesRanges } from '@/composables/useStreaks'
+
+defineProps<{
   shrinked: boolean
 }>()
 const { book, date, day, month, read } = useReadPage()
 const transition =
   'transition-all duration-300 [will-change:padding] transition-delay-1000'
+const calendarAttrs = computed(() => [
+  {
+    key: 'today',
+    dot: true,
+    dates: datesRanges.value,
+  },
+])
 </script>
 <template>
   <Card
@@ -53,7 +62,7 @@ const transition =
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
-            <Calendar v-model="date" />
+            <Calendar v-model="date" :attributes="calendarAttrs" />
           </PopoverContent>
         </Popover>
       </CardFooter>

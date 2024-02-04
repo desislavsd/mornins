@@ -20,11 +20,14 @@ const time = computed(() => {
     },
   }
 })
+const year = computed(() => date.value.getFullYear())
+
 export default function useToday() {
   return {
     timestamp,
     date,
     index,
     time,
+    year,
   }
 }

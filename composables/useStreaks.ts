@@ -13,7 +13,7 @@ if (!oldStorage.value.migrated) {
   oldStorage.value.migrated = true
 }
 
-const { index, date } = useToday()
+const { index, date, year } = useToday()
 
 // reset storage on new year
 watch(
@@ -48,6 +48,17 @@ const streaks = computed(() => {
 const stats = reactive({
   current: computed(() => streaks.value.at(-1)),
   longest: computed(() => Math.max(...streaks.value)),
+})
+
+export const datesRanges = computed(() => {
+  const startOfYear = new Date(year.value, 0, 1)
+  return storage.value.data
+    .split('')
+    .map((e, i) => {
+      if (e !== '+') return
+      return new Date(+startOfYear + i * 24 * 60 * 60 * 1000)
+    })
+    .filter(Boolean)
 })
 
 export default useStreaks
@@ -90,7 +101,8 @@ function setDone(index: number, value: boolean) {
     .join('')
 }
 
-function isDone(index: number) {
+export function isDone(index: number | Date) {
+  if (index instanceof Date) index = getDayOfYear(index) - 1
   return storage.value.data[index] === '+'
 }
 
