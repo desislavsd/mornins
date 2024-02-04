@@ -7,7 +7,10 @@ export default defineComponent({
     const $colorMode = useColorMode()
 
     const themes = [
-      { value: 'system', icon: 'i-carbon-laptop' },
+      {
+        value: 'system',
+        icon: 'i-fluent-dark-theme-20-filled',
+      },
       { value: 'dark', icon: 'i-carbon-moon' },
       { value: 'light', icon: 'i-carbon-sun' },
     ]

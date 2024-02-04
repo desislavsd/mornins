@@ -2,19 +2,45 @@
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
 import coverBig from '@/assets/imgs/cover-xl.webp'
-const scroll = useWindowScroll()
 const lastBook = useLastBook()
 const { time } = useToday()
 const sortedBooks = computed(() =>
   books.slice().sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
 )
+const scroll = reactive({
+  height: 0,
+})
+
+useResizeObserver(document.documentElement, () => {
+  scroll.height = Math.max(
+    (document.scrollingElement?.scrollHeight || 0) - window.screen.height,
+    0
+  )
+})
+
+useStyleTag(
+  computed(
+    () => `
+      @keyframes fade {
+        ${
+          scroll.height
+            ? (window.screen.availHeight / 3 / scroll.height) * 100
+            : 0
+        }% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+    `
+  )
+)
 </script>
 <template>
   <div
     class="min-h-screen landscape:max-md:pl-[40vw] md:pt-[calc(100vh/3*2)] md:bg-dark"
-    :style="`--cut: 7%; --ycut: calc(var(--cut) * 12 / 9);--top: ${
-      scroll.y.value / 2
-    }`"
+    :style="`--cut: 7%; --ycut: calc(var(--cut) * 12 / 9); --scroll-height: ${scroll.height}`"
   >
     <!-- INTRO -->
     <div
@@ -27,7 +53,7 @@ const sortedBooks = computed(() =>
         <img
           :src="cover"
           alt="cover"
-          class="will-change-transform pointer-events-none absolute inset-0 w-full h-full object-cover filter grayscale portrait:max-md:translate-y-[calc(var(--top)*1px)]"
+          class="scroll-animation portrait:max-md:[animation-name:parallax] will-change-transform pointer-events-none absolute inset-0 w-full h-full object-cover filter grayscale"
         />
       </picture>
       <div
@@ -35,7 +61,7 @@ const sortedBooks = computed(() =>
       >
         <!-- clock -->
         <div
-          class="relative max-md:opacity-0 flex-col leading-[1] text-[70px] text-light whitespace-nowrap max-xl:text-center z-30 md:inline-flex max-lg:opacity-[calc(1-var(--top)/50)]"
+          class="scroll-animation md:max-xl:[animation-name:fade] relative max-md:opacity-0 flex-col leading-[1] text-[70px] text-light whitespace-nowrap max-xl:text-center z-30 md:inline-flex max-lg:opacity-[calc(1-var(--top)/50)]"
         >
           <span>{{ time.padded.hours }}:{{ time.padded.minutes }}</span>
           <span class="text-base"
@@ -64,4 +90,17 @@ const sortedBooks = computed(() =>
     </div>
   </div>
 </template>
-<style></style>
+<style>
+.scroll-animation {
+  transform-origin: center center;
+  animation-duration: 1ms; /* Firefox requires this to apply the animation */
+  animation-direction: alternate;
+  animation-timeline: scroll(block nearest);
+  animation-timing-function: linear;
+}
+@keyframes parallax {
+  to {
+    transform: translateY(calc(var(--scroll-height) / 2 * 1px));
+  }
+}
+</style>

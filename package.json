@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@iconify-json/carbon": "^1.1.27",
+    "@iconify-json/fluent": "^1.1.47",
     "@iconify-json/radix-icons": "^1.1.14",
     "@iconify-json/svg-spinners": "^1.1.2",
     "@nuxtjs/color-mode": "^3.3.2",
