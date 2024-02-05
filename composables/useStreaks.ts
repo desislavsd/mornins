@@ -1,18 +1,7 @@
 import useToday from './useToday'
 import { d as $d } from '@/plugins/i18n'
 
-const oldStorage = useLocalStorage('read', {
-  days: defaultStreak().data,
-  migrated: true,
-})
-
 const storage = useLocalStorage('streak', defaultStreak())
-
-// TODO: migrate old storage; remove someday
-if (!oldStorage.value.migrated) {
-  storage.value.data = oldStorage.value.days
-  oldStorage.value.migrated = true
-}
 
 const { index, date, year } = useToday()
 
