@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
 import { displayName, description } from './package.json'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -95,6 +97,11 @@ export default defineNuxtConfig({
       extraProperties: {
         display: 'inline-block',
         'vertical-align': 'middle',
+      },
+      collections: {
+        app: {
+          logo: readFileSync(resolve(__dirname, 'public/logo.svg')).toString(),
+        },
       },
     },
   },
