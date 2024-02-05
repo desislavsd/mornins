@@ -1,6 +1,7 @@
 import books from '@/assets/registry.json'
 import { useNuxtApp, useToday } from '#imports'
-import { monthsNames, getDayOfYear, toSelfProvidingHook } from '@/utils'
+import { getDayOfYear, toSelfProvidingHook } from '@/utils'
+import { d as $d } from '@/plugins/i18n'
 
 function useReadPage() {
   const { id, date, day, month, next } = useReadRoute()
@@ -41,7 +42,7 @@ function useReadRoute() {
   const id = computed(() => $router.currentRoute.value.params.id)
   const date = useRouteDate()
   const day = computed(() => date.value.getDate())
-  const month = computed(() => monthsNames[date.value.getMonth()])
+  const month = computed(() => $d(date.value, 'month'))
 
   watchEffect(() => lastBook.set(id.value as any))
 

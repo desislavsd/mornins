@@ -1,4 +1,5 @@
-import { dayFormatterLong, monthFormatterLong } from '#imports'
+import { t, d } from '@/plugins/i18n'
+
 const timestamp = useTimestamp({
   interval: 1000,
 })
@@ -12,8 +13,8 @@ const time = computed(() => {
     hours,
     minutes,
     date: date.value.getDate(),
-    day: dayFormatterLong.format(date.value),
-    month: monthFormatterLong.format(date.value),
+    day: d(date.value, 'dayLong'),
+    month: d(date.value, 'month'),
     padded: {
       hours: hours.toString().padStart(2, '0'),
       minutes: minutes.toString().padStart(2, '0'),

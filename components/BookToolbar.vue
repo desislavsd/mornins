@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { useToast } from '@/components/ui/toast/use-toast'
 import useReadPage from '@/composables/useReadPage'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const props = defineProps<{
   size: string
 }>()
@@ -27,8 +28,10 @@ function toggleSize() {
 function copyUrl() {
   navigator.clipboard.writeText(url.value)
   toast({
-    title: 'Линка към страницата е копиран',
-    description: `${book.value?.name}: ${unref(day)} - ${unref(month)}`,
+    title: t('messages.linkCopied'),
+    description: `${book.value?.name}: ${unref(day)} - ${capitalize(
+      unref(month)
+    )}`,
   })
 }
 
@@ -36,8 +39,8 @@ async function share() {
   if (!navigator.share) return copyUrl()
   try {
     await navigator.share({
-      title: `${book.value?.name}: ${unref(day)} - ${unref(month)}`,
-      text: `${book.value?.name}: ${unref(day)} - ${unref(month)}`,
+      title: `${book.value?.name}: ${unref(day)} - ${capitalize(unref(month))}`,
+      text: `${book.value?.name}: ${unref(day)} - ${capitalize(unref(month))}`,
       url: url.value,
     })
   } catch (error) {

@@ -1,4 +1,5 @@
 import useToday from './useToday'
+import { d as $d } from '@/plugins/i18n'
 
 const oldStorage = useLocalStorage('read', {
   days: defaultStreak().data,
@@ -107,7 +108,6 @@ export function isDone(index: number | Date) {
 }
 
 function useWeek() {
-  const daysNames = weekDaysNames(date.value)
   const book = useLastBook()
   const { $router } = useNuxtApp()
 
@@ -128,7 +128,7 @@ function useWeek() {
       return {
         index: dayIndex,
         date,
-        name: daysNames[i],
+        name: $d(date, 'dayShort'),
         read: isDone(dayIndex),
         to,
         go() {

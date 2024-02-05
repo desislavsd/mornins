@@ -4,8 +4,13 @@
       <i class="i-carbon-book !w-6 !h-6"></i>
       <span>MORNINS</span>
     </h1>
-    <nav>
-      <ThemeSwitcher />
+    <nav class="-m-3 items-center flex gap-2">
+      <Button variant="ghost" size="sm" as-child>
+        <LangSwitcher variant="ghost" size="sm" />
+      </Button>
+      <Button variant="ghost" size="icon" as-child>
+        <ThemeSwitcher variant="ghost" size="icon" />
+      </Button>
     </nav>
   </header>
 </template>

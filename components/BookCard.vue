@@ -24,9 +24,11 @@ const { item } = reactive(props)
       <CardDescription>{{ item.author }}</CardDescription>
     </CardHeader>
     <CardFooter class="!p-0">
-      <Button as-child size="sm">
+      <Button as-child size="sm" class="capitalize">
         <nuxt-link :to="`/books/${item.id}/today`">{{
-          lastBook.value?.id == item.id ? 'Continue' : 'Read'
+          lastBook.value?.id == item.id
+            ? $t('actions.continue')
+            : $t('actions.read')
         }}</nuxt-link>
       </Button>
     </CardFooter>

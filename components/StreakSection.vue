@@ -1,13 +1,14 @@
 <script lang="tsx" setup>
+import { useI18n } from 'vue-i18n'
+import { capitalize } from '@/utils'
 const { week, stats } = useStreaks()
+const { t } = useI18n()
 
 const message = computed(() => {
   const { longest, current } = stats
-  if (longest == current) return `You are on your longest ${longest} day streak`
+  if (longest == current) return t('messages.onStreak', { days: longest })
 
-  return `Keep up, your longest streak is ${longest} ${
-    longest == 1 ? 'day' : 'days'
-  }.`
+  return t('messages.keepUp', { longest })
 })
 </script>
 <template>
@@ -15,12 +16,13 @@ const message = computed(() => {
     <div class="leading-[1] flex items-center justify-between">
       <div>
         <span class="text-[6rem]">{{ stats.current }} </span>
+
         <span class="text-4xl ml-2 relative">
-          {{ stats.current == 1 ? 'Day' : 'Days' }}
+          {{ capitalize($t('d.day', stats.current || 0)) }}
         </span>
       </div>
-      <Button @click="week.today?.go()" variant="ghost" class="mt-2">
-        Today
+      <Button @click="week.today?.go()" variant="ghost" class="mt-2 capitalize">
+        {{ $t('d.today') }}
         <i
           class="ml-2"
           :class="
@@ -31,7 +33,7 @@ const message = computed(() => {
     </div>
     <div class="flex gap-[4%] mt-2">
       <Button
-        class="aspect-square h-auto w-auto min-w-0 grid place-items-center flex-1"
+        class="aspect-square h-auto w-auto min-w-0 grid place-items-center flex-1 capitalize"
         as-child
         v-for="item in week.days"
         :variant="item.read ? 'default' : 'outline'"

@@ -2,8 +2,8 @@
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
 import coverBig from '@/assets/imgs/cover-xl.webp'
+
 const lastBook = useLastBook()
-const { time } = useToday()
 const sortedBooks = computed(() =>
   books.slice().sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
 )
@@ -60,21 +60,16 @@ useStyleTag(
         class="p-6 flex-1 flex justify-between flex-col xl:flex-row xl:items-end"
       >
         <!-- clock -->
-        <div
+        <HomeClock
           class="scroll-animation md:max-xl:[animation-name:fade] relative max-md:opacity-0 flex-col leading-[1] text-[70px] text-light whitespace-nowrap max-xl:text-center z-30 md:inline-flex max-lg:opacity-[calc(1-var(--top)/50)]"
-        >
-          <span>{{ time.padded.hours }}:{{ time.padded.minutes }}</span>
-          <span class="text-base"
-            >{{ time.day }}, {{ time.date }} {{ time.month }}</span
-          >
-        </div>
+        />
+
         <!-- motivation -->
         <div class="xl:[align-self:start]">
           <p
             class="reltaive z-10 font-light text-white opacity-50 text-right text-xs"
-          >
-            Daily dose <br />of divine inspiration
-          </p>
+            v-html="$t('messages.moto')"
+          ></p>
         </div>
       </div>
     </div>
