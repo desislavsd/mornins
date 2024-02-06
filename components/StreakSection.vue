@@ -33,7 +33,7 @@ const message = computed(() => {
     </div>
     <div class="flex gap-[4%] mt-2">
       <Button
-        class="aspect-square h-auto w-auto min-w-0 grid place-items-center flex-1 capitalize"
+        class="aspect-square h-auto w-auto min-w-0 flex items-center flex-1 capitalize"
         as-child
         v-for="item in week.days"
         :variant="item.read ? 'default' : 'outline'"
