@@ -4,7 +4,7 @@ import { getDayOfYear, toSelfProvidingHook } from '@/utils'
 import { d as $d } from '@/plugins/i18n'
 
 function useReadPage() {
-  const { id, date, day, month, next } = useReadRoute()
+  const { id, date, day, month, next, index } = useReadRoute()
 
   const { book, loading, content } = useBook(id as any)
 
@@ -14,8 +14,6 @@ function useReadPage() {
         .toISOString()
         .slice(0, 10)}`
   )
-
-  const index = computed(() => getDayOfYear(date.value) - 1)
 
   const chapter = computed(() => content.value?.[index.value])
 
@@ -36,13 +34,14 @@ function useReadPage() {
 
 export default toSelfProvidingHook(useReadPage)
 
-function useReadRoute() {
+export function useReadRoute() {
   const { $router } = useNuxtApp()
   const lastBook = useLastBook()
-  const id = computed(() => $router.currentRoute.value.params.id)
+  const id = computed(() => $router.currentRoute.value.params.id as string)
   const date = useRouteDate()
   const day = computed(() => date.value.getDate())
   const month = computed(() => $d(date.value, 'month'))
+  const index = computed(() => getDayOfYear(date.value) - 1)
 
   watchEffect(() => lastBook.set(id.value as any))
 
@@ -51,10 +50,10 @@ function useReadRoute() {
     date.value = newDate
   }
 
-  return { id, date, day, month, next }
+  return { id, date, day, month, index, next }
 }
 
-function useRouteDate() {
+export function useRouteDate() {
   const { $router } = useNuxtApp()
 
   const today = useToday()
@@ -66,27 +65,33 @@ function useRouteDate() {
       return date == 'today' ? today.date.value : new Date(date as string)
     },
     set(date) {
-      $router.push(
-        `/books/${$router.currentRoute.value.params.id}/${date
-          .toISOString()
-          .slice(0, 10)}`
-      )
+      $router.push({
+        params: {
+          id: $router.currentRoute.value.params.id,
+          date: date.toISOString().slice(0, 10),
+        },
+      })
     },
   })
 }
 
-function useBook(id: MaybeRef<(typeof books)[number]['id']>) {
+export function useBook(
+  id: MaybeRef<(typeof books)[number]['id']>,
+  en: boolean = false
+) {
   const book = computed<(typeof books)[number] | undefined>(() =>
     books.find((item) => item.id === unref(id))
   )
 
   const loading = ref(false)
 
-  const content = asyncComputed(
+  const content = asyncComputed<Chapter[]>(
     async () => {
       if (!book.value) return
 
-      const response = await fetch(`/books/${book.value.id}/text.json`)
+      const response = await fetch(
+        `/books/${book.value.id}/${en ? 'en' : 'bg'}.json`
+      )
 
       return response.json()
     },
@@ -100,3 +105,5 @@ function useBook(id: MaybeRef<(typeof books)[number]['id']>) {
     content,
   }
 }
+
+type Chapter = typeof import('@/public/books/toc/bg.json')[number]

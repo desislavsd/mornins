@@ -5,7 +5,10 @@ import coverBig from '@/assets/imgs/cover-xl.webp'
 
 const lastBook = useLastBook()
 const sortedBooks = computed(() =>
-  books.slice().sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
+  books
+    .slice()
+    .filter((e) => !e.hidden)
+    .sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
 )
 const scroll = reactive({
   height: 0,
