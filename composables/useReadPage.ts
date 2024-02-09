@@ -95,7 +95,7 @@ export function useBook(
 
       return response.json()
     },
-    null,
+    undefined,
     { evaluating: loading }
   )
 
