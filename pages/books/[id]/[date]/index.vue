@@ -43,9 +43,9 @@ watch(chapter, async () => {
   <div ref="el">
     <AriaBoundaries v-model="bounds" #default="bounds">
       <BookIntro :shrinked="!bounds.start"></BookIntro>
-      <template v-if="chapter">
+      <template v-if="!loading">
         <div class="prose pt-10 pb-12 px-6 text-justify mx-auto" :class="size">
-          <template v-if="content.length">
+          <template v-if="content?.length">
             <h3 class="text-center font-bold">
               {{ chapter.title }}
             </h3>
@@ -69,7 +69,7 @@ watch(chapter, async () => {
           </p>
         </div>
       </template>
-      <div v-else-if="loading" class="text-center h-20 grid place-items-center">
+      <div v-else="loading" class="text-center h-20 grid place-items-center">
         <i class="i-svg-spinners-3-dots-scale !h-8 !w-8"></i>
       </div>
       <div class="flex fixed bottom-6 left-0 w-full justify-center">
