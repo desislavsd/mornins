@@ -84,7 +84,11 @@ useStyleTag(
       <StreakSection />
       <!-- BOOKS -->
       <div class="flex flex-col gap-3 overflow-hidden">
-        <BookCard v-for="item in sortedBooks" v-bind="{ item }" />
+        <BookCard
+          v-for="item in sortedBooks"
+          :key="item.id"
+          v-bind="{ item }"
+        />
       </div>
     </div>
   </div>

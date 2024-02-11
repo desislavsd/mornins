@@ -19,8 +19,11 @@ const edited = useLocalStorage<(typeof bg)['content'] | null>(
   `edit/${unref(id)}`,
   []
 )
-
 const chapter = ref(loadChapter())
+
+const loading = computed(
+  () => bg.loading || en.loading || !edited.value?.length || !chapter.value?.bg
+)
 
 const editedDates = computed(() => {
   const startOfYear = new Date(date.value.getFullYear(), 0, 1)
@@ -63,6 +66,7 @@ function resetBook(force: boolean = false) {
     return
   edited.value = structuredClone(bg.content)
 }
+
 function resetChapter(force: boolean = false) {
   if (
     !force &&
@@ -84,6 +88,41 @@ function downloadJSON() {
   }).click()
   URL.revokeObjectURL(url)
 }
+
+const EditBlock = defineComponent({
+  props: {
+    modelValue: {},
+    modified: {
+      type: Boolean,
+      default: false,
+    },
+    editable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    const model = useVModel(props, 'modelValue', emit)
+
+    return () => (
+      <div class="p-2 relative [white-space:pre-wrap] break-words">
+        {model.value}
+        {props.editable && (
+          <textarea
+            v-model={model.value}
+            class={[
+              'absolute inset-0 resize-none p-2 [font-style:inherit]',
+              {
+                'bg-yellow-50': props.modified,
+              },
+            ]}
+          ></textarea>
+        )}
+      </div>
+    )
+  },
+})
 </script>
 <template>
   <div class="min-h-screen flex flex-col">
@@ -134,27 +173,39 @@ function downloadJSON() {
     <div
       class="flex-1 grid content-start grid-cols-2 gap-6 p-6 mx-auto max-w-[calc(65ch*2+2*6em)]"
     >
-      <template v-for="(_, i) in chapter.bg?.content">
-        <div
-          v-for="(_, lang) in chapter"
-          :is="lang == 'bg' ? 'textarea' : 'p'"
-          class="p-2"
-          :class="
-            lang == 'bg' ? 'relative [white-space:pre-wrap] break-words' : ''
-          "
-        >
-          {{ chapter[lang]?.content?.[i] }}
-          <textarea
-            v-if="lang == 'bg'"
-            v-model="chapter[lang].content[i]"
-            class="absolute inset-0 resize-none p-2"
-            :class="
-              chapter[lang]?.content[i] !== bg.content?.[index].content[i]
-                ? 'bg-yellow-50'
-                : ''
-            "
-          ></textarea>
-        </div>
+      <template v-if="!loading">
+        <EditBlock
+          v-model="chapter.bg.title"
+          editable
+          class="font-bold"
+          :modified="chapter.bg.title != bg.content?.[index].title"
+        />
+        <EditBlock :model-value="chapter.en?.title" class="font-bold" />
+
+        <EditBlock
+          v-model="chapter.bg.verse"
+          class="text-muted-foreground italic"
+          editable
+          :modified="chapter.bg.verse != bg.content?.[index].verse"
+        />
+        <EditBlock
+          :model-value="chapter.en?.verse"
+          class="text-muted-foreground italic"
+        />
+
+        <template v-for="(_, i) in chapter.bg.content">
+          <template v-for="(_, lang) in chapter">
+            <EditBlock
+              v-if="chapter[lang]?.content"
+              v-model="chapter[lang].content[i]"
+              :editable="lang == 'bg'"
+              :modified="
+                chapter[lang]?.content[i] !== bg.content?.[index].content[i]
+              "
+            />
+            <div v-else></div>
+          </template>
+        </template>
       </template>
     </div>
     <!-- <footer
