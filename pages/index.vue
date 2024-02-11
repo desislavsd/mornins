@@ -2,12 +2,13 @@
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
 import coverBig from '@/assets/imgs/cover-xl.webp'
+const devMode = reactive(useDevMode())
 
 const lastBook = useLastBook()
 const sortedBooks = computed(() =>
   books
     .slice()
-    .filter((e) => !e.hidden)
+    .filter((e) => devMode.state || !e.hidden)
     .sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
 )
 const scroll = reactive({

@@ -2,6 +2,7 @@
 import { useToast } from '@/components/ui/toast/use-toast'
 import useReadPage from '@/composables/useReadPage'
 import { useI18n } from 'vue-i18n'
+const devMode = reactive(useDevMode())
 const { t } = useI18n()
 const props = defineProps<{
   size: string
@@ -76,6 +77,16 @@ const classes = computed(() => {
       </Button>
       <Button class="join-item" as-child>
         <ThemeSwitcher />
+      </Button>
+      <Button
+        as-child
+        v-if="devMode.state"
+        class="join-item"
+        @click="toggleSize()"
+      >
+        <NuxtLink :to="{ name: 'books-id-date-edit', params: $route.params }">
+          <i class="i-carbon-edit"></i>
+        </NuxtLink>
       </Button>
     </nav>
     <div

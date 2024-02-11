@@ -16,6 +16,8 @@
     "keepUp": "Keep up, your longest streak is {days} day. | Keep up, your longest streak is {days} days.",
     "moto": "Daily dose <br />of divine inspiration",
     "linkCopied": "Link copied to clipboard",
-    "autoTranslated": "Automatic translation"
+    "autoTranslated": "Automatic translation",
+    "devModeEnabled": "Developer mode on",
+    "devModeDisabled": "Developer mode off"
   }
 }

@@ -26,8 +26,9 @@ const calendarAttrs = computed(() => [
       <CardHeader class="p-0">
         <CardTitle
           class="whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
-          >{{ book?.name }}</CardTitle
         >
+          {{ book?.name }}
+        </CardTitle>
         <transition>
           <CardDescription v-show="!shrinked">{{
             book?.author
@@ -46,13 +47,6 @@ const calendarAttrs = computed(() => [
             <Button
               class="relative flex items-center"
               :class="shrinked ? 'gap-2' : 'flex-col aspect-square h-auto py-0'"
-              @contextmenu.prevent="
-                $event.metaKey &&
-                  $router.push({
-                    name: 'books-id-date-edit',
-                    params: $route.params,
-                  })
-              "
             >
               <div :class="shrinked ? 'text-base' : 'text-xl'">
                 {{ day }}
