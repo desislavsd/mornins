@@ -21,7 +21,17 @@ const { item } = reactive(props)
       <CardTitle class="whitespace-nowrap text-ellipsis overflow-hidden">{{
         item.name
       }}</CardTitle>
-      <CardDescription>{{ item.author }}</CardDescription>
+      <CardDescription
+        >{{ item.author }}
+        <Badge
+          v-if="item.googleTrnaslate"
+          class="ml-2 tooltip"
+          variant="secondary"
+          :data-tip="$t('messages.autoTranslated')"
+        >
+          <i class="i-carbon-translate"></i>
+        </Badge>
+      </CardDescription>
     </CardHeader>
     <CardFooter class="!p-0">
       <Button as-child size="sm" class="capitalize">

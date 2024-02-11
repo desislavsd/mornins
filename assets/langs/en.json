@@ -15,6 +15,7 @@
     "onStreak": "You are on your longest {days} day streak",
     "keepUp": "Keep up, your longest streak is {days} day. | Keep up, your longest streak is {days} days.",
     "moto": "Daily dose <br />of divine inspiration",
-    "linkCopied": "Link copied to clipboard"
+    "linkCopied": "Link copied to clipboard",
+    "autoTranslated": "Automatic translation"
   }
 }

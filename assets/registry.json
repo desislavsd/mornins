@@ -7,7 +7,8 @@
   {
     "id": "tdg",
     "name": "Този ден с Бога",
-    "author": "Елън Уайт"
+    "author": "Елън Уайт",
+    "googleTrnaslate": "true"
   },
   {
     "id": "ul",
@@ -23,6 +24,21 @@
     "id": "wgd",
     "name": "С Бог на разсъмване",
     "author": "Елън Уайт",
-    "hidden": true
+    "googleTrnaslate": "true",
+    "hidden": "true"
+  },
+  {
+    "id": "fh",
+    "name": "От сърцето",
+    "author": "Елън Уайт",
+    "googleTrnaslate": "true",
+    "hidden": "true"
+  },
+  {
+    "id": "cc",
+    "name": "Конфликт и смелост",
+    "author": "Елън Уайт",
+    "googleTrnaslate": "true",
+    "hidden": "true"
   }
 ]
