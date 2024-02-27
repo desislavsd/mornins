@@ -5,10 +5,10 @@ const { week, stats } = useStreaks()
 const { t } = useI18n()
 
 const message = computed(() => {
-  const { longest, current } = stats
-  if (longest == current) return t('messages.onStreak', { days: longest })
+  const { longest: days, current } = stats
+  if (days == current) return t('messages.onStreak', { days }, days)
 
-  return t('messages.keepUp', { longest })
+  return t('messages.keepUp', { days }, days)
 })
 </script>
 <template>
