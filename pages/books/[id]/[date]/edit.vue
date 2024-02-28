@@ -1,5 +1,9 @@
 <script lang="tsx" setup>
+import { auth } from '@/plugins/auth'
 import { useBook, useReadRoute } from '~/composables/useReadPage'
+import { useToast } from '@/components/ui/toast/use-toast'
+
+const { toast } = useToast()
 
 definePageMeta({
   middleware: (to) => {
@@ -90,11 +94,25 @@ function downloadJSON() {
 }
 
 async function save() {
-  await fetch(`/api/books/${unref(id)}`, {
+  if (!auth.user) await auth.login()
+
+  const res = await fetch(`/api/books/${unref(id)}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${await auth.service.currentUser?.getIdToken()}`,
+    },
     body: JSON.stringify(edited.value),
-  }).catch(console.error)
+  }).catch((err) => err)
+
+  if (!res.ok) {
+    console.log(res)
+    return toast({ title: 'Error saving changes', variant: 'destructive' })
+  }
+
+  toast({
+    title: 'Changes saved',
+  })
 }
 
 const EditBlock = defineComponent({
@@ -172,12 +190,14 @@ const EditBlock = defineComponent({
               ><i class="i-carbon-reset"></i> Книга</Button
             >
           </div>
-          <Button class="gap-2" @click="downloadJSON">
-            <i class="i-carbon-download"></i> Download
-          </Button>
-          <Button class="gap-2" @click="save">
-            <i class="i-carbon-save"></i> Save
-          </Button>
+          <div class="join">
+            <Button class="gap-2 join-item" @click="save">
+              <i class="i-carbon-save"></i> Save
+            </Button>
+            <Button class="gap-2 join-item" @click="downloadJSON">
+              <i class="i-carbon-download"></i>
+            </Button>
+          </div>
         </div>
       </CardHeader>
     </Card>

@@ -77,7 +77,7 @@ export default defineNuxtConfig({
       prefix: '',
     },
   ],
-  plugins: ['~/plugins/i18n'],
+  plugins: ['~/plugins/i18n', '~/plugins/firebase', '~/plugins/auth/index.ts'],
   modules: [
     '@unocss/nuxt',
     '@nuxtjs/tailwindcss',
