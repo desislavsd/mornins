@@ -89,6 +89,14 @@ function downloadJSON() {
   URL.revokeObjectURL(url)
 }
 
+async function save() {
+  await fetch(`/api/books/${unref(id)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(edited.value),
+  }).catch(console.error)
+}
+
 const EditBlock = defineComponent({
   props: {
     modelValue: {},
@@ -164,9 +172,12 @@ const EditBlock = defineComponent({
               ><i class="i-carbon-reset"></i> Книга</Button
             >
           </div>
-          <Button class="gap-2" @click="downloadJSON"
-            ><i class="i-carbon-download"></i> Download</Button
-          >
+          <Button class="gap-2" @click="downloadJSON">
+            <i class="i-carbon-download"></i> Download
+          </Button>
+          <Button class="gap-2" @click="save">
+            <i class="i-carbon-save"></i> Save
+          </Button>
         </div>
       </CardHeader>
     </Card>
