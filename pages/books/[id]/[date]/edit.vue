@@ -138,10 +138,8 @@ const EditBlock = defineComponent({
           <textarea
             v-model={model.value}
             class={[
-              'absolute inset-0 resize-none p-2 [font-style:inherit]',
-              {
-                'bg-yellow-50': props.modified,
-              },
+              'absolute inset-0 resize-none p-2 [font-style:inherit] text-inherit',
+              props.modified ? 'bg-yellow-500/10' : 'bg-transparent',
             ]}
           ></textarea>
         )}

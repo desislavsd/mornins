@@ -108,10 +108,22 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'prompt',
     workbox: {
-      globPatterns: [
-        '**/*.{js,css,html,ico,png,webp,jpg,jpeg,svg,zip,txt,json}',
-      ],
+      globPatterns: ['**/*.{js,css,html,ico,png,webp,jpg,jpeg,svg}'],
       runtimeCaching: [
+        {
+          urlPattern: /\.json$/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'json-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 365, // 365 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
           handler: 'CacheFirst',

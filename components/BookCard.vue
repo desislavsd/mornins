@@ -35,7 +35,7 @@ const { item } = reactive(props)
     </CardHeader>
     <CardFooter class="!p-0">
       <Button as-child size="sm" class="capitalize">
-        <nuxt-link :to="`/books/${item.id}/today`" no-prefetch>{{
+        <nuxt-link :to="`/books/${item.id}/today`">{{
           lastBook.value?.id == item.id
             ? $t('actions.continue')
             : $t('actions.read')
