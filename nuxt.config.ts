@@ -8,6 +8,11 @@ const siteUrl = process.env.NUXT_PUBLIC_SITE_URL
 export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: process.env.NODE_ENV === 'development' },
+  runtimeConfig: {
+    public: {
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL,
+    },
+  },
   sourcemap: false,
   app: {
     head: {

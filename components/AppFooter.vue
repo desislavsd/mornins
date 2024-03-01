@@ -1,4 +1,35 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useToast } from '@/components/ui/toast/use-toast'
+import { t } from '@/plugins/i18n'
+import { displayName, description } from '@@/package.json'
+
+const { toast } = useToast()
+const {
+  public: { siteUrl },
+} = useRuntimeConfig()
+
+function copyUrl() {
+  navigator.clipboard.writeText(siteUrl)
+  toast({
+    title: t('messages.linkCopied'),
+    description: siteUrl,
+  })
+}
+
+async function share() {
+  if (!navigator.share) return copyUrl()
+  try {
+    await navigator.share({
+      title: displayName,
+      text: description,
+      url: siteUrl,
+    })
+  } catch (error) {
+    console.error(error)
+    copyUrl()
+  }
+}
+</script>
 <template>
   <footer
     class="app-footer relative md:z-10 flex items-center justify-between w-full bg-dark text-light p-6 shadow-dark shadow-lg"
@@ -23,7 +54,7 @@
       >
         <i class="i-carbon-at text-base"></i>
       </Button>
-      <Button size="sm" variant="ghost" class="flex gap-2">
+      <Button size="sm" variant="ghost" class="flex gap-2" @click="share">
         <i class="i-carbon-share text-base"></i>
       </Button>
     </div>
