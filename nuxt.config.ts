@@ -2,11 +2,12 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { displayName, description } from './package.json'
 import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders'
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   ssr: false,
-  devtools: { enabled: false },
+  devtools: { enabled: process.env.NODE_ENV === 'development' },
   sourcemap: false,
   app: {
     head: {
@@ -63,6 +64,17 @@ export default defineNuxtConfig({
         { name: 'description', content: description },
         { name: 'msapplication-TileColor', content: '#ffffff' },
         { name: 'theme-color', content: '#ffffff' },
+        { property: 'og:url', content: siteUrl },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Mornins' },
+        { property: 'og:description', content: description },
+        { property: 'og:image', content: `${siteUrl}/imgs/og.png` },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { property: 'twitter:domain', content: 'mornins.com' },
+        { property: 'twitter:url', content: siteUrl },
+        { name: 'twitter:title', content: 'Mornins' },
+        { name: 'twitter:description', content: description },
+        { name: 'twitter:image', content: `${siteUrl}/imgs/og.png` },
       ],
     },
   },
