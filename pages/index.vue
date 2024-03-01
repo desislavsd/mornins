@@ -2,6 +2,11 @@
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
 import coverBig from '@/assets/imgs/cover-xl.webp'
+
+definePageMeta({
+  layout: 'home',
+})
+
 const devMode = reactive(useDevMode())
 
 const lastBook = useLastBook()
@@ -43,12 +48,12 @@ useStyleTag(
 </script>
 <template>
   <div
-    class="min-h-screen landscape:max-md:pl-[40vw] md:pt-[calc(100vh/3*2)] md:bg-dark"
+    class="bg-dark min-h-screen landscape:max-md:pl-[40vw] md:pt-[calc(100vh/3*2)]"
     :style="`--cut: 7%; --ycut: calc(var(--cut) * 12 / 9); --scroll-height: ${scroll.height}`"
   >
-    <!-- INTRO -->
+    <!-- HERO -->
     <div
-      class="max-md:pb-[var(--cut)] relative left-0 top-0 h-full w-full z-10 flex flex-col portrait:max-md:aspect-[9/12] portrait:max-md:[clip-path:polygon(0_0,100%_0,100%_100%,0_calc(100%-var(--cut)))] portrait:max-md:-mb-[var(--ycut)] landscape:max-md:fixed landscape:max-md:w-[40vw] md:fixed"
+      class="max-md:pb-[var(--cut)] landscape:max-md:pb-0 relative left-0 top-0 h-full w-full z-20 flex flex-col portrait:max-md:aspect-[9/12] portrait:max-md:[clip-path:polygon(0_0,100%_0,100%_100%,0_calc(100%-var(--cut)))] portrait:max-md:-mb-[var(--ycut)] landscape:max-md:fixed landscape:max-md:w-[40vw] md:fixed"
     >
       <!-- HEADER -->
       <AppHeader class="relative z-10 w-full" />
@@ -78,18 +83,21 @@ useStyleTag(
       </div>
     </div>
     <!-- CONTENT -->
-    <div
-      class="relative bg-background p-6 flex flex-col gap-6 mx-auto md:z-20 md:max-w-lg md:rounded-t-md xl:mr-6"
-    >
-      <StreakSection />
-      <!-- BOOKS -->
-      <div class="flex flex-col gap-3 overflow-hidden">
-        <BookCard
-          v-for="item in sortedBooks"
-          :key="item.id"
-          v-bind="{ item }"
-        />
+    <div class="relative md:z-20 md:max-w-lg xl:mr-6 mx-auto">
+      <div
+        class="bg-background z-10 p-6 flex flex-col gap-6 md:rounded-t-md rounded-b-md"
+      >
+        <StreakSection />
+        <!-- BOOKS -->
+        <div class="flex flex-col gap-3 overflow-hidden">
+          <BookCard
+            v-for="item in sortedBooks"
+            :key="item.id"
+            v-bind="{ item }"
+          />
+        </div>
       </div>
+      <AppFooter class="bg-transparent" />
     </div>
   </div>
 </template>

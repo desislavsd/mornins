@@ -151,7 +151,9 @@ const EditBlock = defineComponent({
 <template>
   <div class="min-h-screen flex flex-col">
     <Card class="z-10 sticky top-0 rounded-none bg-background">
-      <CardHeader class="flex flex-row items-center justify-between">
+      <CardHeader
+        class="flex flex-row items-center justify-between flex-nowrap overflow-x-auto overflow-y-hidden gap-4 !space-y-0"
+      >
         <div class="items-center flex gap-4">
           <Button as-child>
             <NuxtLink :to="{ name: 'books-id-date', params: $route.params }">
@@ -169,7 +171,7 @@ const EditBlock = defineComponent({
               <Calendar v-model="date" :attributes="calendarAttrs" />
             </PopoverContent>
           </Popover>
-          <CardTitle>{{ bg.book?.name }}</CardTitle>
+          <CardTitle class="whitespace-nowrap">{{ bg.book?.name }}</CardTitle>
         </div>
         <div class="flex items-center gap-4">
           <div class="join">
@@ -199,43 +201,45 @@ const EditBlock = defineComponent({
         </div>
       </CardHeader>
     </Card>
-    <div
-      class="flex-1 grid content-start grid-cols-2 gap-6 p-6 mx-auto max-w-[calc(65ch*2+2*6em)]"
-    >
-      <template v-if="!loading">
-        <EditBlock
-          v-model="chapter.bg.title"
-          editable
-          class="font-bold"
-          :modified="chapter.bg.title != bg.content?.[index].title"
-        />
-        <EditBlock :model-value="chapter.en?.title" class="font-bold" />
+    <div class="overflow-x-auto">
+      <div
+        class="flex-1 w-[200vw] lg:w-full grid content-start grid-cols-2 gap-6 p-6 mx-auto max-w-[calc(65ch*2+2*6em)]"
+      >
+        <template v-if="!loading">
+          <EditBlock
+            v-model="chapter.bg.title"
+            editable
+            class="font-bold"
+            :modified="chapter.bg.title != bg.content?.[index].title"
+          />
+          <EditBlock :model-value="chapter.en?.title" class="font-bold" />
 
-        <EditBlock
-          v-model="chapter.bg.verse"
-          class="text-muted-foreground italic"
-          editable
-          :modified="chapter.bg.verse != bg.content?.[index].verse"
-        />
-        <EditBlock
-          :model-value="chapter.en?.verse"
-          class="text-muted-foreground italic"
-        />
+          <EditBlock
+            v-model="chapter.bg.verse"
+            class="text-muted-foreground italic"
+            editable
+            :modified="chapter.bg.verse != bg.content?.[index].verse"
+          />
+          <EditBlock
+            :model-value="chapter.en?.verse"
+            class="text-muted-foreground italic"
+          />
 
-        <template v-for="(_, i) in chapter.bg.content">
-          <template v-for="(_, lang) in chapter">
-            <EditBlock
-              v-if="chapter[lang]?.content"
-              v-model="chapter[lang].content[i]"
-              :editable="lang == 'bg'"
-              :modified="
-                chapter[lang]?.content[i] !== bg.content?.[index].content[i]
-              "
-            />
-            <div v-else></div>
+          <template v-for="(_, i) in chapter.bg.content">
+            <template v-for="(_, lang) in chapter">
+              <EditBlock
+                v-if="chapter[lang]?.content"
+                v-model="chapter[lang].content[i]"
+                :editable="lang == 'bg'"
+                :modified="
+                  chapter[lang]?.content[i] !== bg.content?.[index].content[i]
+                "
+              />
+              <div v-else></div>
+            </template>
           </template>
         </template>
-      </template>
+      </div>
     </div>
     <!-- <footer
       class="z-10 sticky bottom-0 flex justify-end p-6 gap-6 bg-background"

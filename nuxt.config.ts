@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { displayName, description } from './package.json'
+import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -94,11 +95,18 @@ export default defineNuxtConfig({
     uno: false,
     icons: {
       prefix: 'i-',
+      layer: 'base',
       extraProperties: {
         display: 'inline-block',
         'vertical-align': 'middle',
       },
       collections: {
+        sigs: FileSystemIconLoader('./assets/imgs/sigs'),
+        // sigs: async (iconName) => {
+        //   return readFileSync(
+        //     resolve(__dirname, `assets/imgs/sigs/${iconName}.svg`)
+        //   ).toString()
+        // },
         app: {
           logo: readFileSync(resolve(__dirname, 'public/logo.svg')).toString(),
         },

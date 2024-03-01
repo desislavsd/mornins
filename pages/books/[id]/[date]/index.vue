@@ -41,10 +41,18 @@ watch(chapter, async () => {
 </script>
 <template>
   <div ref="el">
-    <AriaBoundaries v-model="bounds" #default="bounds">
+    <AriaBoundaries
+      v-model="bounds"
+      #default="bounds"
+      class="relative z-10 bg-background min-h-screen flex flex-col"
+    >
       <BookIntro :shrinked="!bounds.start"></BookIntro>
-      <template v-if="!loading">
-        <div class="prose pt-10 pb-12 px-6 text-justify mx-auto" :class="size">
+      <div class="flex-1">
+        <div
+          v-if="!loading"
+          class="prose pt-10 pb-6 px-6 text-justify mx-auto"
+          :class="size"
+        >
           <template v-if="content?.length">
             <h3 class="text-center font-bold">
               {{ chapter.title }}
@@ -68,11 +76,11 @@ watch(chapter, async () => {
             <i class="i-carbon-face-dissatisfied"></i>
           </p>
         </div>
-      </template>
-      <div v-else="loading" class="text-center h-20 grid place-items-center">
-        <i class="i-svg-spinners-3-dots-scale !h-8 !w-8"></i>
+        <div v-else="loading" class="text-center h-20 grid place-items-center">
+          <i class="i-svg-spinners-3-dots-scale !h-8 !w-8"></i>
+        </div>
       </div>
-      <div class="flex fixed bottom-6 left-0 w-full justify-center">
+      <div class="flex sticky bottom-6 left-0 w-full justify-center">
         <BookToolbar v-model:size="size" />
       </div>
     </AriaBoundaries>
