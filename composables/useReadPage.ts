@@ -61,8 +61,9 @@ export function useRouteDate() {
   return computed({
     get() {
       const { date } = $router.currentRoute.value.params
-
-      return date == 'today' ? today.date.value : new Date(date as string)
+      return !date || date == 'today'
+        ? today.date.value
+        : new Date(date as string)
     },
     set(date) {
       $router.push({

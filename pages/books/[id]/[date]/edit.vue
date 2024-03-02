@@ -210,7 +210,7 @@ const EditBlock = defineComponent({
     </Card>
     <div class="overflow-x-auto">
       <div
-        class="flex-1 w-[200vw] lg:w-full grid content-start grid-cols-2 gap-6 p-6 mx-auto max-w-[calc(65ch*2+2*6em)]"
+        class="flex-1 w-[200vw] lg:w-full grid content-start grid-cols-2 gap-6 p-4 mx-auto max-w-[calc(65ch*2+2*6em)]"
       >
         <template v-if="!loading">
           <EditBlock
@@ -248,11 +248,6 @@ const EditBlock = defineComponent({
         </template>
       </div>
     </div>
-    <!-- <footer
-      class="z-10 sticky bottom-0 flex justify-end p-6 gap-6 bg-background"
-    >
-      
-    </footer> -->
   </div>
 </template>
 <style></style>

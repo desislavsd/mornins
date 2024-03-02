@@ -80,12 +80,7 @@ const classes = computed(() => {
       <Button class="join-item" as-child>
         <ThemeSwitcher />
       </Button>
-      <Button
-        as-child
-        v-if="devMode.state"
-        class="join-item"
-        @click="toggleSize()"
-      >
+      <Button as-child v-if="devMode.state" class="join-item">
         <NuxtLink :to="{ name: 'books-id-date-edit', params: $route.params }">
           <i class="i-carbon-edit"></i>
         </NuxtLink>
