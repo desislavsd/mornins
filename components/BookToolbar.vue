@@ -2,6 +2,7 @@
 import { useToast } from '@/components/ui/toast/use-toast'
 import useReadPage from '@/composables/useReadPage'
 import { useI18n } from 'vue-i18n'
+import { TOAST_DURATION } from '~/config'
 const devMode = reactive(useDevMode())
 const { t } = useI18n()
 const props = defineProps<{
@@ -33,6 +34,7 @@ function copyUrl() {
     description: `${book.value?.name}: ${unref(day)} - ${capitalize(
       unref(month)
     )}`,
+    duration: TOAST_DURATION,
   })
 }
 

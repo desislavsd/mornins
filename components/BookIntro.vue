@@ -2,9 +2,6 @@
 import useReadPage from '@/composables/useReadPage'
 import { datesRanges } from '@/composables/useStreaks'
 
-defineProps<{
-  shrinked: boolean
-}>()
 const { book, date, day, month, read } = useReadPage()
 const transition =
   'transition-all duration-300 [will-change:padding] transition-delay-1000'
@@ -17,11 +14,7 @@ const calendarAttrs = computed(() => [
 ])
 </script>
 <template>
-  <Card
-    :class="`fixed w-full left-0 top-0 rounded-none bg-background z-10 p-6 ${transition} ${
-      shrinked ? 'py-2' : ''
-    }`"
-  >
+  <Card class="sticky w-full left-0 top-0 rounded-none z-10 p-6 py-2">
     <div class="flex justify-between items-center">
       <CardHeader class="p-0">
         <CardTitle
@@ -29,11 +22,6 @@ const calendarAttrs = computed(() => [
         >
           {{ book?.name }}
         </CardTitle>
-        <transition>
-          <CardDescription v-show="!shrinked">{{
-            book?.author
-          }}</CardDescription>
-        </transition>
       </CardHeader>
       <!-- <CardContent class="pt-6">
         <img
@@ -44,11 +32,8 @@ const calendarAttrs = computed(() => [
       <CardFooter class="p-0">
         <Popover>
           <PopoverTrigger as-child>
-            <Button
-              class="relative flex items-center"
-              :class="shrinked ? 'gap-2' : 'flex-col aspect-square h-auto py-0'"
-            >
-              <div :class="shrinked ? 'text-base' : 'text-xl'">
+            <Button class="relative flex items-center gap-2">
+              <div class="text-base">
                 {{ day }}
               </div>
               <span class="font-normal capitalize">{{ month }}</span>
@@ -58,8 +43,6 @@ const calendarAttrs = computed(() => [
               >
                 <i class="i-carbon-checkmark text-lg"></i>
               </Badge>
-              <!-- <transition>
-              </transition> -->
             </Button>
           </PopoverTrigger>
           <PopoverContent class="w-auto p-0">
@@ -72,12 +55,11 @@ const calendarAttrs = computed(() => [
       class="progressbar absolute bottom-0 w-full h-[3px] bg-foreground left-0"
     ></div>
   </Card>
-  <div style="height: 145px"></div>
 </template>
 <style>
 .progressbar {
   transform-origin: left center;
-  animation-name: progress;
+  animation: progress linear both alternate;
   animation-duration: 1ms; /* Firefox requires this to apply the animation */
   animation-direction: alternate;
   animation-timeline: scroll(block nearest);

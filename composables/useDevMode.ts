@@ -1,5 +1,6 @@
 import { useToast } from '@/components/ui/toast/use-toast'
 import { t } from '@/plugins/i18n'
+import { TOAST_DURATION } from '~/config'
 
 const ATTEMPTS = 7
 let counter = 0
@@ -33,6 +34,7 @@ export function useDevMode() {
       title: unref(state)
         ? t('messages.devModeEnabled')
         : t('messages.devModeDisabled'),
+      duration: TOAST_DURATION,
     })
   }
 

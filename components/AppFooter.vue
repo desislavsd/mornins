@@ -2,6 +2,7 @@
 import { useToast } from '@/components/ui/toast/use-toast'
 import { t } from '@/plugins/i18n'
 import { displayName, description } from '@@/package.json'
+import { TOAST_DURATION } from '~/config'
 
 const { toast } = useToast()
 const {
@@ -13,6 +14,7 @@ function copyUrl() {
   toast({
     title: t('messages.linkCopied'),
     description: siteUrl,
+    duration: TOAST_DURATION,
   })
 }
 

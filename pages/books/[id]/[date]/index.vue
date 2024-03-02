@@ -46,11 +46,11 @@ watch(chapter, async () => {
       #default="bounds"
       class="relative z-10 bg-background min-h-screen flex flex-col"
     >
-      <BookIntro :shrinked="!bounds.start"></BookIntro>
+      <BookIntro />
       <div class="flex-1">
         <div
           v-if="!loading"
-          class="prose pt-10 pb-6 px-6 text-justify mx-auto"
+          class="prose p-6 pt-10 text-justify mx-auto"
           :class="size"
         >
           <template v-if="content?.length">

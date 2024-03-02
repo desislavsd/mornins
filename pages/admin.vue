@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { auth } from '@/plugins/auth'
 import { useToast } from '@/components/ui/toast/use-toast'
+import { TOAST_DURATION } from '~/config'
 const { toast } = useToast()
 
 const form = reactive({ email: '' })
@@ -25,12 +26,17 @@ async function activate() {
 
   if (!res.ok) {
     console.log(res)
-    return toast({ title: 'Error activating', variant: 'destructive' })
+    return toast({
+      title: 'Error activating',
+      variant: 'destructive',
+      duration: TOAST_DURATION,
+    })
   }
 
   toast({
     title: 'Activation successful',
     description: `${email} has been activated`,
+    duration: TOAST_DURATION,
   })
 }
 </script>
