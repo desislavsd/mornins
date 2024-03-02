@@ -53,6 +53,13 @@ watchEffect(() => {
   resetBook(true)
 })
 
+const modified = computed(
+  () =>
+    !unref(loading) &&
+    new Set([unref(edited), unref(bg)?.content].map((e) => JSON.stringify(e)))
+      .size > 1
+)
+
 function loadChapter() {
   return {
     bg: unref(edited)?.[index.value],
@@ -191,7 +198,7 @@ const EditBlock = defineComponent({
             >
           </div>
           <div class="join">
-            <Button class="gap-2 join-item" @click="save">
+            <Button class="gap-2 join-item" @click="save" :disabled="!modified">
               <i class="i-carbon-save"></i> Save
             </Button>
             <Button class="gap-2 join-item" @click="downloadJSON">

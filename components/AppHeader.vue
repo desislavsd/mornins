@@ -9,7 +9,7 @@ const dev = reactive(useDevMode())
       <i @click="dev.attemptToggle()" class="i-app-logo !w-6 !h-6" />
       MORNINS
     </NuxtLink>
-    <nav class="-m-3 items-center flex gap-2">
+    <nav class="-m-2 items-center flex gap-2">
       <Button variant="ghost" size="sm" as-child>
         <LangSwitcher variant="ghost" size="sm" />
       </Button>
