@@ -51,15 +51,32 @@ const message = computed(() => {
     </div>
 
     <Accordion type="single" class="w-full" collapsible>
-      <AccordionItem value="true" class="!border-none -ml-4">
-        <AccordionTrigger class="pl-4">
-          {{ message }}
-        </AccordionTrigger>
-        <AccordionContent>
-          <HeatMap />
-        </AccordionContent>
+      <AccordionItem value="heatmap" class="!border-none -ml-4">
+        <template #default="{ open }">
+          <AccordionTrigger class="pl-4">
+            {{ message }}
+          </AccordionTrigger>
+
+          <div
+            class="transition-height"
+            :data-state="open ? 'opened' : 'closed'"
+          >
+            <div class="overflow-hidden">
+              <HeatMap class="pb-4" />
+            </div>
+          </div>
+        </template>
       </AccordionItem>
     </Accordion>
   </div>
 </template>
-<style></style>
+<style>
+.transition-height {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 200ms ease-out;
+  &[data-state='opened'] {
+    grid-template-rows: 1fr;
+  }
+}
+</style>
