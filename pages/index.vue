@@ -87,7 +87,7 @@ useStyleTag(
       <div
         class="bg-background z-10 p-6 flex flex-col gap-6 md:rounded-t-md rounded-b-md"
       >
-        <StreakSection />
+        <StreakSection class="-mb-4" />
         <!-- BOOKS -->
         <div class="flex flex-col gap-3 overflow-hidden">
           <BookCard

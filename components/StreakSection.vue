@@ -1,6 +1,12 @@
 <script lang="tsx" setup>
 import { useI18n } from 'vue-i18n'
 import { capitalize } from '@/utils'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 const { week, stats } = useStreaks()
 const { t } = useI18n()
 
@@ -43,9 +49,17 @@ const message = computed(() => {
         </NuxtLink>
       </Button>
     </div>
-    <p class="mt-2">
-      {{ message }}
-    </p>
+
+    <Accordion type="single" class="w-full" collapsible>
+      <AccordionItem value="true" class="!border-none -ml-4">
+        <AccordionTrigger class="pl-4">
+          {{ message }}
+        </AccordionTrigger>
+        <AccordionContent>
+          <HeatMap />
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   </div>
 </template>
 <style></style>
