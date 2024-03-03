@@ -74,7 +74,7 @@ function getStyle(i) {
             getStyle(i),
             i == index && 'ring-1 ring-offset-1 ring-foreground',
           ]"
-          :style="n == 1 ? `grid-row-start: ${offset}` : ''"
+          :style="n == 1 ? `grid-row-start: ${offset + 1}` : ''"
         ></div>
       </div>
       <ScrollBar orientation="horizontal" />
