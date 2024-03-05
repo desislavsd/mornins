@@ -5,7 +5,8 @@
   },
   "actions": {
     "continue": "continue",
-    "read": "read"
+    "read": "read",
+    "donate": "donate"
   },
   "d": {
     "day": "day|days",
@@ -19,5 +20,11 @@
     "autoTranslated": "Automatic translation",
     "devModeEnabled": "Developer mode on",
     "devModeDisabled": "Developer mode off"
-  }
+  },
+  "support": [
+    "Support Mornins",
+    "Help the team behind the project",
+    "This project is free, has no ads, and does not collect any personal data. You can help keep the project alive and encourage its further development.",
+    "We are grateful for your contribution!"
+  ]
 }

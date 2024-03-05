@@ -44,17 +44,11 @@ async function share() {
       </div>
     </div>
     <div class="flex items-center -mr-3">
-      <Button
-        as="a"
-        href="https://revolut.me/desislavsd"
-        target="_blank"
-        rel="noopener"
-        size="sm"
-        variant="ghost"
-        class="flex gap-2"
-      >
-        <i class="i-fluent-drink-coffee-16-regular text-base"></i>
-      </Button>
+      <SupportDrawer>
+        <Button size="sm" variant="ghost" class="flex gap-2">
+          <i class="i-fluent-drink-coffee-16-regular text-base"></i>
+        </Button>
+      </SupportDrawer>
       <Button
         size="sm"
         variant="ghost"
