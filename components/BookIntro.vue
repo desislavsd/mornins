@@ -14,7 +14,9 @@ const calendarAttrs = computed(() => [
 ])
 </script>
 <template>
-  <Card class="sticky w-full left-0 top-0 rounded-none z-10 p-6 py-2">
+  <Card
+    class="sticky w-full left-0 top-0 rounded-none z-10 p-6 py-2 border-x-0"
+  >
     <div class="flex justify-between items-center">
       <CardHeader class="p-0">
         <CardTitle
