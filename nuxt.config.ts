@@ -19,23 +19,20 @@ export default defineNuxtConfig({
       title: displayName,
       link: [
         {
+          rel: 'icon',
+          href: '/favicon.ico',
+          sizes: 'any',
+        },
+        {
+          rel: 'icon',
+          href: '/logo.svg',
+          type: 'image/svg+xml',
+        },
+        {
           rel: 'apple-touch-icon',
-          sizes: '180x180',
-          href: '/apple-touch-icon.png',
+          href: '/apple-touch-icon-180x180.png',
         },
-        {
-          rel: 'icon',
-          type: 'image/png',
-          sizes: '32x32',
-          href: '/favicon-32x32.png',
-        },
-        {
-          rel: 'icon',
-          type: 'image/png',
-          sizes: '16x16',
-          href: '/favicon-16x16.png',
-        },
-        { rel: 'manifest', href: '/site.webmanifest' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
         {
           rel: 'mask-icon',
           href: '/safari-pinned-tab.svg',
@@ -98,7 +95,12 @@ export default defineNuxtConfig({
       prefix: '',
     },
   ],
-  plugins: ['~/plugins/i18n', '~/plugins/firebase', '~/plugins/auth/index.ts'],
+  plugins: [
+    '~/plugins/i18n',
+    '~/plugins/pwa',
+    '~/plugins/firebase',
+    '~/plugins/auth/index.ts',
+  ],
   modules: [
     '@unocss/nuxt',
     '@nuxtjs/tailwindcss',
@@ -122,11 +124,6 @@ export default defineNuxtConfig({
       },
       collections: {
         sigs: FileSystemIconLoader('./assets/imgs/sigs'),
-        // sigs: async (iconName) => {
-        //   return readFileSync(
-        //     resolve(__dirname, `assets/imgs/sigs/${iconName}.svg`)
-        //   ).toString()
-        // },
         app: {
           logo: readFileSync(resolve(__dirname, 'public/logo.svg')).toString(),
         },
@@ -135,6 +132,9 @@ export default defineNuxtConfig({
   },
   pwa: {
     registerType: 'prompt',
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,ico,png,webp,jpg,jpeg,svg}'],
+    },
     workbox: {
       globPatterns: ['**/*.{js,css,html,ico,png,webp,jpg,jpeg,svg}'],
       runtimeCaching: [
@@ -186,11 +186,6 @@ export default defineNuxtConfig({
       //   { url: '/', revision: new Date().getTime().toString() },
       // ],
     },
-    includeAssets: [
-      'favicon.ico',
-      'apple-touch-icon.png',
-      'safari-pinned-tab.svg',
-    ],
     manifest: {
       name: displayName,
       short_name: displayName,
@@ -199,25 +194,27 @@ export default defineNuxtConfig({
       orientation: 'portrait',
       icons: [
         {
-          src: 'android-chrome-192x192.png',
+          src: 'pwa-64x64.png',
+          sizes: '64x64',
+          type: 'image/png',
+        },
+        {
+          src: 'pwa-192x192.png',
           sizes: '192x192',
           type: 'image/png',
         },
         {
-          src: 'android-chrome-512x512.png',
+          src: 'pwa-512x512.png',
           sizes: '512x512',
           type: 'image/png',
         },
         {
-          src: 'android-chrome-512x512.png',
+          src: 'maskable-icon-512x512.png',
           sizes: '512x512',
           type: 'image/png',
-          purpose: 'any maskable',
+          purpose: 'maskable',
         },
       ],
-    },
-    devOptions: {
-      enabled: false,
     },
     registerWebManifestInRouteRules: true,
   },
