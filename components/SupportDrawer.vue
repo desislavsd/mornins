@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { displayName } from '@@/package.json'
 import {
   Drawer,
   DrawerContent,
@@ -16,7 +17,9 @@ import {
       class="md:max-w-sm md:bottom-6 md:rounded-b-[10px] md:after:hidden mx-auto"
     >
       <DrawerHeader>
-        <DrawerTitle class="text-center">{{ $t('support.0') }}</DrawerTitle>
+        <DrawerTitle class="text-center">
+          {{ $t('support.0') }} {{ displayName }}
+        </DrawerTitle>
         <DrawerDescription class="text-center">{{
           $t('support.1')
         }}</DrawerDescription>

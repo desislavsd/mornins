@@ -9,6 +9,8 @@ const {
   public: { siteUrl },
 } = useRuntimeConfig()
 
+const domain = new URL(siteUrl).hostname
+
 function copyUrl() {
   navigator.clipboard.writeText(siteUrl)
   toast({
@@ -39,7 +41,7 @@ async function share() {
     <div class="flex gap-2 items-center">
       <i class="i-sigs-7 aspect-[2/1.6] !w-[40px] !h-auto relative top-[2px]" />
       <div class="text-left pl-2 text-sm">
-        <div>Mornins</div>
+        <div>{{ displayName }}</div>
         <div class="opacity-50 text-xs">All rights reserved &copy; 2024</div>
       </div>
     </div>
@@ -54,7 +56,7 @@ async function share() {
         variant="ghost"
         class="flex gap-2"
         as="a"
-        href="mailto:contact@mornins.com"
+        :href="`mailto:contact@${domain}`"
       >
         <i class="i-carbon-at text-base"></i>
       </Button>
