@@ -1,8 +1,8 @@
 <script lang="tsx" setup>
-import { IDLE_AT, CHARACTERS_PER_SECOND } from '@/config'
+import { /* IDLE_AT,  */ CHARACTERS_PER_SECOND } from '@/config'
 const el = ref(null)
 const model = defineModel()
-const idle = useIdle(1000 * IDLE_AT)
+// const idle = useIdle(1000 * IDLE_AT)
 const timer = useTimestamp({ controls: true, interval: 1000 })
 let readAt = 0
 
@@ -15,7 +15,7 @@ const allPointsRead = computed(
 )
 
 // control when timer is running
-watch(idle.idle, (idle) => (idle ? timer.pause() : timer.resume()))
+// watch(idle.idle, (idle) => (idle ? timer.pause() : timer.resume()))
 
 // update counters on each tick; counter is updated only if previous one is done
 watch(timer.timestamp, (time) => {
