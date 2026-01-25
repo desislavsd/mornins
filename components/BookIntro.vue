@@ -17,10 +17,10 @@ const calendarAttrs = computed(() => [
   <Card
     class="sticky w-full left-0 top-0 rounded-none z-10 p-6 py-2 border-x-0"
   >
-    <div class="flex justify-between items-center">
-      <CardHeader class="p-0">
+    <div class="flex justify-between items-center gap-2">
+      <CardHeader class="p-0 min-w-0">
         <CardTitle
-          class="whitespace-nowrap overflow-hidden [text-overflow:ellipsis]"
+          class="whitespace-nowrap overflow-hidden [text-overflow:ellipsis] min-w-0"
         >
           {{ book?.name }}
         </CardTitle>
