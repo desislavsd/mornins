@@ -84,6 +84,7 @@ watch(chapter, async () => {
         <BookToolbar v-model:size="size" />
       </div>
     </AriaBoundaries>
+    <div class="bg-background rounded-b-md h-3"></div>
   </div>
 </template>
 <style></style>

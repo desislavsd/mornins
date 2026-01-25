@@ -11,8 +11,8 @@ const bounds = reactive(
     Object.entries(value).map(([key]) => [
       key,
       debouncedRef(toRef(value, key as keyof typeof value), DEBOUNCE),
-    ])
-  )
+    ]),
+  ),
 )
 
 watchEffect(() => {
@@ -25,7 +25,9 @@ provide('bounds', bounds)
   <div>
     <IntersectionPoint v-model="value.start" />
     <slot v-bind="bounds" />
-    <IntersectionPoint v-model="value.end"> &nbsp; </IntersectionPoint>
+    <IntersectionPoint v-model="value.end" class="-mt-3">
+      &nbsp;
+    </IntersectionPoint>
   </div>
 </template>
 <style></style>
