@@ -2,6 +2,8 @@
 import Toaster from '@/components/ui/toast/Toaster.vue'
 </script>
 <template>
-  <NuxtLayout class="mx-auto min-h-screen" />
-  <Toaster />
+  <TooltipProvider disableHoverableContent>
+    <NuxtLayout class="mx-auto min-h-screen" />
+    <Toaster />
+  </TooltipProvider>
 </template>

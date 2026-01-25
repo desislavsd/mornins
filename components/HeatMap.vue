@@ -33,36 +33,47 @@ const months = computed(() => {
 
 const book = useLastBook()
 
-const tiles = computed(() =>
-  Array.from({ length: unref(daysCount) }).map((_, i) => {
+const tiles = computed(() => {
+  const dateFormatter = new Intl.DateTimeFormat(unref(locale), {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+
+  return Array.from({ length: unref(daysCount) }).map((_, i) => {
     // start of year
     let date = new Date(unref(year), 0, 1)
     // add i days
     date = new Date(date.getTime() + (i + 0.2) * 24 * 60 * 60 * 1000)
 
-    return {
-      class: [
-        'block w-3 h-3 rounded-sm',
-        getStyle(i),
-        i == unref(index) && 'ring-1 ring-offset-1 ring-foreground',
-        date.getDate() == 1 && '!rounded-full',
-      ],
-      to: {
-        name: 'books-id-date',
-        params: {
-          id: book.value?.id,
-          date: date.toISOString().slice(0, 10),
-        },
-      },
-      style: i ? '' : `grid-row-start: ${unref(offset) + 1}`,
-    }
-  }),
-)
+    const done = isDone(i)
 
-function getStyle(i) {
-  if (i > unref(index)) return 'bg-foreground/5'
-  return isDone(i) ? 'bg-foreground' : 'bg-foreground/15'
-}
+    return {
+      done,
+      attrs: {
+        class: [
+          'block w-3 h-3 rounded-sm  transition-colors',
+          i > unref(index)
+            ? 'bg-foreground/5 hover:bg-foreground/30'
+            : done
+              ? 'bg-foreground'
+              : 'bg-foreground/15 hover:bg-foreground/30',
+          i == unref(index) && 'ring-1 ring-offset-1 ring-foreground',
+          date.getDate() == 1 && '!rounded-full',
+        ],
+        to: {
+          name: 'books-id-date',
+          params: {
+            id: book.value?.id,
+            date: date.toISOString().slice(0, 10),
+          },
+        },
+        style: i ? '' : `grid-row-start: ${unref(offset) + 1}`,
+      },
+      date: dateFormatter.format(date),
+    }
+  })
+})
 </script>
 <template>
   <div class="flex items-end gap-1">
@@ -95,17 +106,18 @@ function getStyle(i) {
         class="relative grid grid-cols-[52] grid-rows-7 gap-1 [grid-auto-flow:column] py-1"
       >
         <!-- Days -->
-        <NuxtLink v-for="(tile, i) in tiles" :key="i" v-bind="tile"></NuxtLink>
-        <!-- <div
-          v-for="(n, i) in daysCount"
-          :key="n"
-          class="w-3 h-3 rounded-sm"
-          :class="[
-            getStyle(i),
-            i == index && 'ring-1 ring-offset-1 ring-foreground',
-          ]"
-          :style="n == 1 ? `grid-row-start: ${offset + 1}` : ''"
-        ></div> -->
+        <Tooltip v-for="(tile, i) in tiles" :key="i">
+          <TooltipTrigger as-child>
+            <NuxtLink v-bind="tile.attrs"></NuxtLink>
+          </TooltipTrigger>
+          <TooltipContent>
+            <i
+              v-if="tile.done"
+              class="i-carbon:checkmark-filled align-middle -mt-[2px]"
+            ></i>
+            {{ tile.date }}
+          </TooltipContent>
+        </Tooltip>
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
