@@ -53,7 +53,7 @@ const message = computed(() => {
     <Accordion type="single" class="w-full" collapsible>
       <AccordionItem value="heatmap" class="!border-none -ml-4">
         <template #default="{ open }">
-          <AccordionTrigger class="pl-4">
+          <AccordionTrigger class="pl-4 text-left">
             {{ message }}
           </AccordionTrigger>
 
