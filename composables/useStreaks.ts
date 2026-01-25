@@ -9,9 +9,6 @@ const { index, date, year } = useToday()
 watch(
   index,
   (index) => {
-    // detect new year
-    if (index) return
-
     // already reset
     if (
       date.value.getFullYear() ===
@@ -23,7 +20,7 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 )
 
 const today = useStreakDay()
@@ -127,7 +124,7 @@ function useWeek() {
     })
 
     const today = days.find(
-      (e) => e.index == unref(index)
+      (e) => e.index == unref(index),
     ) as (typeof days)[number]
 
     return {
