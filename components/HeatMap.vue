@@ -14,13 +14,14 @@ const months = computed(() => {
 
   return Array.from({ length: 12 }, (_, i) => {
     // Create a date object for the start of the year and the start of the month
-    const startOfYear = new Date(unref(year), 0, 1)
+    const startOfYear =
+      new Date(unref(year), 0, 1) - unref(offset) * 24 * 60 * 60 * 1000
     const startOfMonth = new Date(unref(year), i, 1)
     // Calculate the difference in milliseconds
     const diff = startOfMonth - startOfYear
 
     // Convert the difference to weeks (1 week = 604800000 milliseconds)
-    const weeks = Math.floor(diff / 604800000)
+    const weeks = Math.floor(diff / (7 * 24 * 60 * 60 * 1000))
 
     return {
       name: formatter.format(new Date(0, i)),
@@ -29,6 +30,34 @@ const months = computed(() => {
     }
   })
 })
+
+const book = useLastBook()
+
+const tiles = computed(() =>
+  Array.from({ length: unref(daysCount) }).map((_, i) => {
+    // start of year
+    let date = new Date(unref(year), 0, 1)
+    // add i days
+    date = new Date(date.getTime() + (i + 0.2) * 24 * 60 * 60 * 1000)
+
+    return {
+      class: [
+        'block w-3 h-3 rounded-sm',
+        getStyle(i),
+        i == unref(index) && 'ring-1 ring-offset-1 ring-foreground',
+        date.getDate() == 1 && '!rounded-full',
+      ],
+      to: {
+        name: 'books-id-date',
+        params: {
+          id: book.value?.id,
+          date: date.toISOString().slice(0, 10),
+        },
+      },
+      style: i ? '' : `grid-row-start: ${unref(offset) + 1}`,
+    }
+  }),
+)
 
 function getStyle(i) {
   if (i > unref(index)) return 'bg-foreground/5'
@@ -66,7 +95,8 @@ function getStyle(i) {
         class="relative grid grid-cols-[52] grid-rows-7 gap-1 [grid-auto-flow:column] py-1"
       >
         <!-- Days -->
-        <div
+        <NuxtLink v-for="(tile, i) in tiles" :key="i" v-bind="tile"></NuxtLink>
+        <!-- <div
           v-for="(n, i) in daysCount"
           :key="n"
           class="w-3 h-3 rounded-sm"
@@ -75,7 +105,7 @@ function getStyle(i) {
             i == index && 'ring-1 ring-offset-1 ring-foreground',
           ]"
           :style="n == 1 ? `grid-row-start: ${offset + 1}` : ''"
-        ></div>
+        ></div> -->
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
