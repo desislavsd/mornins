@@ -24,7 +24,7 @@ const swipe = useSwipe(el, {
 })
 
 const size = useLocalStorage('size', 'prose-sm')
-const { chapter, loading, next, read } = useReadPage()
+const { book, chapter, loading, next, read } = useReadPage()
 
 const bounds = ref()
 
@@ -57,7 +57,7 @@ watch(chapter, async () => {
             <h3 class="text-center font-bold">
               {{ chapter.title }}
             </h3>
-            <div class="block italic text-center mb-8 opacity-50">
+            <div class="block italic text-center mb-8 opacity-50 capitalize">
               {{ chapter.day }}
             </div>
             <div class="relative">
@@ -72,7 +72,7 @@ watch(chapter, async () => {
             </div>
           </template>
           <p v-else class="text-center">
-            This book has no data for this day
+            {{ $t(book ? 'messages.noChapterForDay' : 'messages.bookNotFound') }}
             <i class="i-carbon-face-dissatisfied"></i>
           </p>
         </div>

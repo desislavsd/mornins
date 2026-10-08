@@ -1,10 +1,15 @@
 import books from '@/assets/registry.json'
-import { useNuxtApp, useToday } from '#imports'
+import { useNuxtApp, useRoute, useToday } from '#imports'
 import { getDayOfYear, toSelfProvidingHook } from '@/utils'
 import { d as $d } from '@/plugins/i18n'
 
 function useReadPage() {
   const { id, date, day, month, next, index } = useReadRoute()
+
+  // const formatter = computed(() => new Intl.DateTimeFormat('en-US', {
+  //   month: 'long',
+  //   day: 'numeric',
+  // }))
 
   const { book, loading, content } = useBook(id as any)
 
@@ -12,10 +17,18 @@ function useReadPage() {
     () =>
       `${window.location.origin}/books/${book.value?.id}/${date.value
         .toISOString()
-        .slice(0, 10)}`
+        .slice(0, 10)}`,
   )
 
-  const chapter = computed(() => content.value?.[index.value])
+  const chapter = computed(() => {
+    const chapter = content.value?.[index.value]
+    if (!chapter) return
+
+    return {
+      ...chapter,
+      day: $d(unref(date), 'readDay'),
+    }
+  })
 
   const { done: read } = useStreakDay(index)
 
@@ -35,9 +48,11 @@ function useReadPage() {
 export default toSelfProvidingHook(useReadPage)
 
 export function useReadRoute() {
-  const { $router } = useNuxtApp()
+  // Nuxt's useRoute() is page-scoped: a leaving page keeps seeing the route it
+  // was rendered with, so params don't go undefined mid-navigation.
+  const route = useRoute()
   const lastBook = useLastBook()
-  const id = computed(() => $router.currentRoute.value.params.id as string)
+  const id = computed(() => route.params.id as string)
   const date = useRouteDate()
   const day = computed(() => date.value.getDate())
   const month = computed(() => $d(date.value, 'month'))
@@ -55,12 +70,13 @@ export function useReadRoute() {
 
 export function useRouteDate() {
   const { $router } = useNuxtApp()
+  const route = useRoute()
 
   const today = useToday()
 
   return computed({
     get() {
-      const { date } = $router.currentRoute.value.params
+      const { date } = route.params
       return !date || date == 'today'
         ? today.date.value
         : new Date(date as string)
@@ -68,7 +84,7 @@ export function useRouteDate() {
     set(date) {
       $router.push({
         params: {
-          id: $router.currentRoute.value.params.id,
+          id: route.params.id,
           date: date.toISOString().slice(0, 10),
         },
       })
@@ -78,10 +94,10 @@ export function useRouteDate() {
 
 export function useBook(
   id: MaybeRef<(typeof books)[number]['id']>,
-  en: boolean = false
+  en: boolean = false,
 ) {
   const book = computed<(typeof books)[number] | undefined>(() =>
-    books.find((item) => item.id === unref(id))
+    books.find((item) => item.id === unref(id)),
   )
 
   const loading = ref(false)
@@ -91,13 +107,13 @@ export function useBook(
       if (!book.value) return
 
       const response = await fetch(
-        `/books/${book.value.id}/${en ? 'en' : 'bg'}.json`
+        `/books/${book.value.id}/${en ? 'en' : 'bg'}.json`,
       )
 
       return response.json()
     },
     undefined,
-    { evaluating: loading }
+    { evaluating: loading },
   )
 
   return {
@@ -107,4 +123,4 @@ export function useBook(
   }
 }
 
-type Chapter = typeof import('@/public/books/toc/bg.json')[number]
+type Chapter = (typeof import('@/public/books/toc/bg.json'))[number]
