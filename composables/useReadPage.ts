@@ -100,20 +100,21 @@ export function useBook(
     books.find((item) => item.id === unref(id)),
   )
 
-  const loading = ref(false)
+  const nuxtApp = useNuxtApp()
+  // The read page is keyed by book id (see layouts/default.vue), so the id is
+  // constant for the lifetime of this composable and a static key is enough.
+  const key = `book:${book.value?.id}:${en ? 'en' : 'bg'}`
 
-  const content = asyncComputed<Chapter[]>(
+  // Book JSONs are ~1.5MB each. Nuxt only serves payload-cached data while
+  // hydrating, so point getCachedData at the payload to keep a parsed copy
+  // for the whole session instead of refetching on every read-page visit.
+  const { data: content, pending: loading } = useAsyncData<Chapter[]>(
+    key,
     async () => {
-      if (!book.value) return
-
-      const response = await fetch(
-        `/books/${book.value.id}/${en ? 'en' : 'bg'}.json`,
-      )
-
-      return response.json()
+      if (!book.value) return [] as Chapter[]
+      return $fetch<Chapter[]>(`/books/${book.value.id}/${en ? 'en' : 'bg'}.json`)
     },
-    undefined,
-    { evaluating: loading },
+    { getCachedData: (k) => nuxtApp.payload.data[k] },
   )
 
   return {

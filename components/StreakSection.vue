@@ -8,7 +8,21 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 const { week, stats } = useStreaks()
+const { index } = useToday()
 const { t } = useI18n()
+
+// The heatmap renders ~365 tooltip triggers; mount it only once it is first
+// opened so the homepage stays cheap to navigate to.
+const opened = ref<string>()
+const heatmapMounted = ref(false)
+watch(opened, (v) => v && (heatmapMounted.value = true))
+
+function dayVariant(item: { read: boolean; index: number }) {
+  if (item.read) return 'default'
+  // passed days that were not read: muted, like the heatmap tiles
+  if (item.index < index.value) return 'secondary'
+  return 'outline'
+}
 
 const message = computed(() => {
   const { longest: days, current } = stats
@@ -42,7 +56,7 @@ const message = computed(() => {
         class="aspect-square h-auto w-auto min-w-0 flex items-center flex-1 capitalize"
         as-child
         v-for="item in week.days"
-        :variant="item.read ? 'default' : 'outline'"
+        :variant="dayVariant(item)"
       >
         <NuxtLink :to="item.to">
           {{ item.name }}
@@ -50,7 +64,7 @@ const message = computed(() => {
       </Button>
     </div>
 
-    <Accordion type="single" class="w-full" collapsible>
+    <Accordion type="single" class="w-full" collapsible v-model="opened">
       <AccordionItem value="heatmap" class="!border-none -ml-4">
         <template #default="{ open }">
           <AccordionTrigger class="pl-4 text-left">
@@ -62,7 +76,7 @@ const message = computed(() => {
             :data-state="open ? 'opened' : 'closed'"
           >
             <div class="overflow-hidden">
-              <HeatMap class="pb-4" />
+              <HeatMap v-if="heatmapMounted" class="pb-4" />
             </div>
           </div>
         </template>

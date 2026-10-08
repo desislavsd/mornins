@@ -17,6 +17,10 @@ const datetimeFormats = {
   month: {
     month: 'long',
   },
+  readDay: {
+    month: 'long',
+    day: 'numeric',
+  },
 }
 
 export const i18n = createI18n({

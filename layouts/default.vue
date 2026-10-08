@@ -2,7 +2,7 @@
   <div class="layout-default flex flex-col min-h-screen">
     <AppHeader class="sticky top-0" />
     <NuxtPage
-      :page-key="(r) => String(r.name)"
+      :page-key="(r) => [r.name, r.params.id].filter(Boolean).join('-')"
       class="bg-background relative z-20 rounded-b-md flex-1 shadow-dark shadow-lg"
     />
     <AppFooter />

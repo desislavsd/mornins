@@ -3,7 +3,18 @@ import { d as $d } from '@/plugins/i18n'
 
 const storage = useLocalStorage('streak', defaultStreak())
 
-const { index, date, year } = useToday()
+const { index, date, year, isLeapYear } = useToday()
+
+// Storage has 366 slots, one per day of a leap year, so Feb 29 always owns
+// slot 59. In a non-leap year that slot is unused and every day from Mar 1 on
+// lives one slot later than its day-of-year. These map between the two.
+export function dayToSlot(day: number, leap = isLeapYear.value) {
+  return !leap && day >= 59 ? day + 1 : day
+}
+export function slotToDay(slot: number, leap = isLeapYear.value) {
+  return !leap && slot > 59 ? slot - 1 : slot
+}
+const FEB_29_SLOT = 59
 
 // reset storage on new year
 watch(
@@ -28,8 +39,11 @@ const today = useStreakDay()
 const streaks = computed(() => {
   // today should be excluded if not done
   const i = index.value + (unref(today.done) ? 1 : 0)
-  const data = storage.value.data.slice(0, i)
-  return [0].concat(data.split(/-+/).map((e) => e.length))
+  const slots = storage.value.data.slice(0, i).split('')
+  // the unused Feb 29 slot must not break a streak in a non-leap year
+  if (!isLeapYear.value && slots.length > FEB_29_SLOT)
+    slots.splice(FEB_29_SLOT, 1)
+  return [0].concat(slots.join('').split(/-+/).map((e) => e.length))
 })
 
 const stats = reactive({
@@ -41,9 +55,11 @@ export const datesRanges = computed(() => {
   const startOfYear = new Date(year.value, 0, 1)
   return storage.value.data
     .split('')
-    .map((e, i) => {
+    .map((e, slot) => {
       if (e !== '+') return
-      return new Date(+startOfYear + i * 24 * 60 * 60 * 1000)
+      return new Date(
+        +startOfYear + slotToDay(slot) * 24 * 60 * 60 * 1000,
+      )
     })
     .filter(Boolean)
 })

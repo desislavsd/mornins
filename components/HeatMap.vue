@@ -1,6 +1,6 @@
 <script setup>
 const { isLeapYear, year, index } = useToday()
-import { isDone } from '@/composables/useStreaks'
+import { isDone, dayToSlot } from '@/composables/useStreaks'
 import { useI18n } from 'vue-i18n'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 const { week } = useStreaks()
@@ -33,6 +33,41 @@ const months = computed(() => {
 
 const book = useLastBook()
 
+// center the current week in view (matters late in the year)
+const scrollArea = ref()
+function scrollToCurrentWeek() {
+  const root = scrollArea.value?.$el
+  const viewport = root?.querySelector('[data-radix-scroll-area-viewport]')
+  const tile = root?.querySelector('[data-today]')
+  if (!viewport || !tile) return
+  const v = viewport.getBoundingClientRect()
+  const t = tile.getBoundingClientRect()
+  const delta = t.left + t.width / 2 - (v.left + v.width / 2)
+  viewport.scrollLeft = Math.max(viewport.scrollLeft + delta, 0)
+}
+onMounted(() => nextTick(scrollToCurrentWeek))
+watch(index, () => nextTick(scrollToCurrentWeek))
+
+// One shared tooltip for all tiles, driven by event delegation on the grid,
+// instead of a Tooltip component instance per tile.
+const hovered = ref(null)
+function tileFromEvent(e) {
+  const el = e.target.closest?.('[data-day]')
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  return {
+    tile: tiles.value[+el.dataset.day],
+    x: rect.left + rect.width / 2,
+    y: rect.top,
+  }
+}
+function onTileEnter(e) {
+  hovered.value = tileFromEvent(e) ?? hovered.value
+}
+function onTileLeave(e) {
+  if (!e.relatedTarget?.closest?.('[data-day]')) hovered.value = null
+}
+
 const tiles = computed(() => {
   const dateFormatter = new Intl.DateTimeFormat(unref(locale), {
     year: 'numeric',
@@ -46,19 +81,22 @@ const tiles = computed(() => {
     // add i days
     date = new Date(date.getTime() + (i + 0.2) * 24 * 60 * 60 * 1000)
 
-    const done = isDone(i)
+    // `index` is a storage slot, tiles are days of the year
+    const slot = dayToSlot(i, unref(isLeapYear))
+    const done = isDone(slot)
+    const isToday = slot == unref(index)
 
     return {
       done,
       attrs: {
         class: [
           'block w-3 h-3 rounded-sm  transition-colors',
-          i > unref(index)
+          slot > unref(index)
             ? 'bg-foreground/5 hover:bg-foreground/30'
             : done
               ? 'bg-foreground'
               : 'bg-foreground/15 hover:bg-foreground/30',
-          i == unref(index) && 'ring-1 ring-offset-1 ring-foreground',
+          isToday && 'ring-1 ring-offset-1 ring-foreground',
           date.getDate() == 1 && '!rounded-full',
         ],
         to: {
@@ -69,6 +107,8 @@ const tiles = computed(() => {
           },
         },
         style: i ? '' : `grid-row-start: ${unref(offset) + 1}`,
+        'data-today': isToday ? '' : undefined,
+        'data-day': i,
       },
       date: dateFormatter.format(date),
     }
@@ -89,7 +129,7 @@ const tiles = computed(() => {
         }}</span>
       </small>
     </div>
-    <ScrollArea class="my-4 p-2 -m-2">
+    <ScrollArea ref="scrollArea" class="my-4 p-2 -m-2">
       <div
         class="relative grid [grid-template-columns:repeat(52,0.75rem)] gap-1"
       >
@@ -104,21 +144,34 @@ const tiles = computed(() => {
       </div>
       <div
         class="relative grid grid-cols-[52] grid-rows-7 gap-1 [grid-auto-flow:column] py-1"
+        @pointerover="onTileEnter"
+        @pointerout="onTileLeave"
+        @focusin="onTileEnter"
+        @focusout="onTileLeave"
       >
         <!-- Days -->
-        <Tooltip v-for="(tile, i) in tiles" :key="i">
-          <TooltipTrigger as-child>
-            <NuxtLink v-bind="tile.attrs"></NuxtLink>
-          </TooltipTrigger>
-          <TooltipContent>
+        <NuxtLink v-for="(tile, i) in tiles" :key="i" v-bind="tile.attrs" />
+      </div>
+      <Teleport to="body">
+        <!-- positioning and animation on separate elements: animate-in owns `transform` -->
+        <div
+          v-if="hovered"
+          role="tooltip"
+          class="fixed z-50 pointer-events-none -translate-x-1/2 -translate-y-full -mt-2"
+          :style="`left:${hovered.x}px;top:${hovered.y}px`"
+        >
+          <div
+            :key="hovered.tile.date"
+            class="origin-bottom rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground whitespace-nowrap animate-in fade-in-0 zoom-in-95"
+          >
             <i
-              v-if="tile.done"
+              v-if="hovered.tile.done"
               class="i-carbon:checkmark-filled align-middle -mt-[2px]"
             ></i>
-            {{ tile.date }}
-          </TooltipContent>
-        </Tooltip>
-      </div>
+            {{ hovered.tile.date }}
+          </div>
+        </div>
+      </Teleport>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
   </div>

@@ -22,7 +22,10 @@ const time = computed(() => {
   }
 })
 const year = computed(() => date.value.getFullYear())
-const isLeapYear = computed(() => !year.value % 4)
+const isLeapYear = computed(
+  () =>
+    year.value % 4 === 0 && (year.value % 100 !== 0 || year.value % 400 === 0),
+)
 export default function useToday() {
   return {
     timestamp,

@@ -33,11 +33,16 @@ const content = computed(() => {
   return chapter.value.content.map((e: any) => `<p>${e}</p>`).join('')
 })
 
-watch(chapter, async () => {
-  if (document.documentElement.scrollTop < 50) return
-  await sleep(500)
-  document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
-})
+// On the `today` route `chapter` is rebuilt every clock tick, so watch the
+// day it belongs to rather than the object identity.
+watch(
+  () => chapter.value?.day,
+  async () => {
+    if (document.documentElement.scrollTop < 50) return
+    await sleep(500)
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
+  },
+)
 </script>
 <template>
   <div ref="el">
