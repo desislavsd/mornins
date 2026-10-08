@@ -58,8 +58,13 @@ const message = computed(() => {
         v-for="item in week.days"
         :variant="dayVariant(item)"
       >
-        <NuxtLink :to="item.to">
+        <NuxtLink :to="item.to" class="relative">
           {{ item.name }}
+          <!-- today marker -->
+          <span
+            v-if="item.index == index"
+            class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-current"
+          ></span>
         </NuxtLink>
       </Button>
     </div>
