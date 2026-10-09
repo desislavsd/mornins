@@ -106,11 +106,8 @@ async function infoToRegistryItem(
 ): Promise<RegistryItem> {
   const { title, code, author } = info
 
-  if (existing) {
-    // keep the curated name/author; the book is no longer machine-translated by Google
-    const { googleTrnaslate, ...rest } = existing
-    return rest
-  }
+  // keep the curated name/author; the flag means "auto translated", whatever the backend
+  if (existing) return { ...existing, googleTrnaslate: true }
 
   const [name, authorName] = await geminiTranslateSafe([title, author], {
     context: 'These are a book title and an author name.',
@@ -120,6 +117,7 @@ async function infoToRegistryItem(
     id: code.toLowerCase(),
     name,
     author: authorName,
+    googleTrnaslate: true,
     hidden: false,
   }
 }
