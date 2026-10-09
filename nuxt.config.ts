@@ -140,7 +140,9 @@ export default defineNuxtConfig({
       runtimeCaching: [
         {
           urlPattern: /\.json$/,
-          handler: 'CacheFirst',
+          // NetworkFirst so edited book content reaches installed PWAs;
+          // the cached copy is only an offline fallback.
+          handler: 'NetworkFirst',
           options: {
             cacheName: 'json-cache',
             expiration: {
