@@ -66,7 +66,7 @@ useStyleTag(
         />
       </picture>
       <div
-        class="p-6 flex-1 flex justify-between flex-col xl:flex-row xl:items-end"
+        class="p-6 px-gutter flex-1 flex justify-between flex-col xl:flex-row xl:items-end"
       >
         <!-- clock -->
         <HomeClock
@@ -85,7 +85,7 @@ useStyleTag(
     <!-- CONTENT -->
     <div class="relative md:z-20 md:max-w-lg xl:mr-6 mx-auto">
       <div
-        class="bg-background z-10 p-6 flex flex-col gap-6 md:rounded-t-md rounded-b-md"
+        class="bg-background z-10 p-6 px-gutter pb-gutter flex flex-col gap-gutter md:rounded-t-md rounded-b-md"
       >
         <StreakSection class="-mb-4" />
         <!-- BOOKS -->

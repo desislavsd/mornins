@@ -39,6 +39,14 @@
     --ring: 240 10% 0%;
 
     --radius: 0.5rem;
+
+    /* horizontal page gutter shared by header, footer and page sections */
+    --page-gutter: 1rem;
+  }
+  @screen md {
+    :root {
+      --page-gutter: 1.5rem;
+    }
   }
 
   .dark {

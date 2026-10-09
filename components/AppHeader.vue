@@ -5,7 +5,7 @@ const dev = reactive(useDevMode())
 </script>
 
 <template>
-  <header class="app-header z-10 flex justify-between text-white p-6">
+  <header class="app-header z-10 flex justify-between text-white p-6 px-gutter">
     <NuxtLink to="/" class="flex items-center gap-2 leading-[0] uppercase">
       <i @click="dev.attemptToggle()" class="i-app-logo !w-6 !h-6" />
       {{ displayName }}

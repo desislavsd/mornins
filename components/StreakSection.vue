@@ -81,7 +81,7 @@ const message = computed(() => {
             :data-state="open ? 'opened' : 'closed'"
           >
             <div class="overflow-hidden">
-              <HeatMap v-if="heatmapMounted" class="pb-4" />
+              <HeatMap v-if="heatmapMounted" class="pb-4 pl-4" />
             </div>
           </div>
         </template>

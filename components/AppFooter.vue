@@ -36,7 +36,7 @@ async function share() {
 </script>
 <template>
   <footer
-    class="app-footer relative md:z-10 flex items-center justify-between w-full bg-dark text-light p-6 shadow-dark shadow-lg"
+    class="app-footer relative md:z-10 flex items-center justify-between w-full bg-dark text-light p-6 px-gutter shadow-dark shadow-lg"
   >
     <div class="flex gap-2 items-center">
       <i class="i-sigs-7 aspect-[2/1.6] !w-[40px] !h-auto relative top-[2px]" />

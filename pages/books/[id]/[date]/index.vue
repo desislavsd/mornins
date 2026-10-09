@@ -55,7 +55,7 @@ watch(
       <div class="flex-1">
         <div
           v-if="!loading"
-          class="prose p-6 pt-10 text-justify mx-auto"
+          class="prose p-6 px-gutter pt-10 text-justify mx-auto"
           :class="size"
         >
           <template v-if="content?.length">

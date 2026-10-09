@@ -54,6 +54,9 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      spacing: {
+        gutter: 'var(--page-gutter)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
