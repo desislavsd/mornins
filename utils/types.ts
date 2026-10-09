@@ -11,4 +11,6 @@ export interface RegistryItem {
   author: string
   googleTrnaslate?: boolean
   hidden?: boolean
+  /** ISO date (YYYY-MM-DD) the book was added; see isNewBook() */
+  added?: string
 }

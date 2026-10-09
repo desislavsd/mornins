@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import Books from '@/assets/registry.json'
+import { isNewBook } from '@/utils'
 const lastBook = useLastBook()
 
 const props = defineProps<{
   item: (typeof Books)[number]
 }>()
 const { item } = reactive(props)
+const isNew = computed(() => isNewBook(item))
+// both chips share one compact size so they sit as a pair
+const chip = 'h-5 px-1.5 py-0 text-[10px] font-medium leading-none'
 </script>
 <template>
   <Card class="relative flex items-stretch p-6 gap-6">
@@ -21,15 +25,21 @@ const { item } = reactive(props)
       <CardTitle class="whitespace-nowrap text-ellipsis overflow-hidden">{{
         item.name
       }}</CardTitle>
-      <CardDescription
-        >{{ item.author }}
+      <CardDescription class="flex items-center gap-2">
+        <span>{{ item.author }}</span>
+        <Badge
+          v-if="isNew"
+          variant="secondary"
+          :class="chip"
+          >{{ $t('messages.new') }}</Badge
+        >
         <Badge
           v-if="item.googleTrnaslate"
-          class="ml-2 tooltip"
           variant="secondary"
+          :class="[chip, 'tooltip']"
           :data-tip="$t('messages.autoTranslated')"
         >
-          <i class="i-carbon-translate"></i>
+          <i class="i-carbon-translate text-sm"></i>
         </Badge>
       </CardDescription>
     </CardHeader>

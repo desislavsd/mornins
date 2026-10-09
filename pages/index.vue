@@ -2,6 +2,7 @@
 import books from '@/assets/registry.json'
 import cover from '@/assets/imgs/cover.webp'
 import coverBig from '@/assets/imgs/cover-xl.webp'
+import { isNewBook } from '@/utils'
 
 definePageMeta({
   layout: 'home',
@@ -10,11 +11,14 @@ definePageMeta({
 const devMode = reactive(useDevMode())
 
 const lastBook = useLastBook()
+// current book first, then new books, then the rest in registry order
+const rank = (e: (typeof books)[number]) =>
+  lastBook.value.id == e.id ? 0 : isNewBook(e) ? 1 : 2
 const sortedBooks = computed(() =>
   books
     .slice()
     .filter((e) => devMode.state || !e.hidden)
-    .sort((a, b) => (lastBook.value.id == a.id ? -1 : 1))
+    .sort((a, b) => rank(a) - rank(b))
 )
 const scroll = reactive({
   height: 0,

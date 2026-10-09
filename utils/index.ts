@@ -12,6 +12,16 @@ export function sleep(ms: number) {
   })
 }
 
+/** how long a book keeps its "new" badge after `added` */
+export const NEW_BOOK_DAYS = 30
+
+/** a book is "new" for NEW_BOOK_DAYS after the `added` date in the registry */
+export function isNewBook(book: { added?: string }, now: Date | number = Date.now()) {
+  if (!book.added) return false
+  const age = (+now - +new Date(book.added)) / (24 * 60 * 60 * 1000)
+  return age >= 0 && age < NEW_BOOK_DAYS
+}
+
 export function getDayOfYear(date: Date | number) {
   date = new Date(date)
   const start = new Date(date.getFullYear(), 0, 0)

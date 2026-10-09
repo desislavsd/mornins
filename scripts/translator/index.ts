@@ -20,6 +20,8 @@ import { geminiTranslateSafe } from './gemini'
 const gc = forceAsyncChain(getChapter, 200)
 
 const TRANSLATE_CONCURRENCY = 6
+const CONTENT_SUBTYPES = new Set(['standard-indented', 'poem-noindent'])
+const FEB_29 = 59 // 0-based index of February 29 in a leap year
 
 const EN_MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -29,10 +31,46 @@ const BG_MONTHS = [
   'януари', 'февруари', 'март', 'април', 'май', 'юни',
   'юли', 'август', 'септември', 'октомври', 'ноември', 'декември',
 ]
+// the model transliterates/quotes periodical names inconsistently; keep the English titles
 const PERIODICALS: [RegExp, string][] = [
-  [/(The )?Review and Herald|„?Ревю енд Хералд“?/g, 'The Review and Herald'],
-  [/(The )?Signs of the Times|„?Знамения на времето“?/g, 'The Signs of the Times'],
+  [/[„"]?(The )?Review and Herald[“"]?|[„"]?Р[еи]вю енд [ХхH][еа]р[аъо]лд[“"]?/g, 'The Review and Herald'],
+  [/[„"]?(The )?Signs of the Times[“"]?|[„"]?(Знамения на времето|Сайнс ъф дъ Таймс)[“"]?/g, 'The Signs of the Times'],
+  [/[„"]?(The )?Youth[’']s Instructor[“"]?/g, 'The Youth’s Instructor'],
+  [/[„"]?(The )?S\.D\.A\. Bible Commentary[“"]?/g, 'The S.D.A. Bible Commentary'],
 ]
+/**
+ * The dash before the closing source reference, whatever dash the model used:
+ * a source is an English title, Писмо/Ръкопис/Пак там, or a capitalised
+ * Bulgarian title followed by page/date digits, with no further dash after it
+ * (a hyphen inside a page range like 301-303 is allowed).
+ */
+const SOURCE_DASH =
+  /\s*[—–-]\s*(?=[„"]?(?:[A-Z][A-Za-z.’',]*(?: [A-Za-z.’',]+)* \d|Пак там|Писмо|Ръкопис|[А-Я][а-я]+(?:[^—–-]|(?<=\d)-(?=\d))*\d)(?:[^—–-]|(?<=\d)-(?=\d))*$)/
+
+// English Bible book names the model occasionally leaves inside "(Book 1:2)" references
+const BIBLE_BOOKS: [string, string][] = [
+  ['Genesis', 'Битие'], ['Exodus', 'Изход'], ['Leviticus', 'Левит'], ['Numbers', 'Числа'],
+  ['Deuteronomy', 'Второзаконие'], ['Joshua', 'Исус Навин'], ['Judges', 'Съдии'], ['Ruth', 'Рут'],
+  ['1 Samuel', '1 Царе'], ['2 Samuel', '2 Царе'], ['1 Kings', '3 Царе'], ['2 Kings', '4 Царе'],
+  ['1 Chronicles', '1 Летописи'], ['2 Chronicles', '2 Летописи'], ['Ezra', 'Ездра'], ['Nehemiah', 'Неемия'],
+  ['Esther', 'Естир'], ['Job', 'Йов'], ['Psalms', 'Псалм'], ['Psalm', 'Псалм'], ['Proverbs', 'Притчи'],
+  ['Ecclesiastes', 'Еклисиаст'], ['Song of Solomon', 'Песен на Песните'], ['Isaiah', 'Исая'],
+  ['Jeremiah', 'Йеремия'], ['Lamentations', 'Плач Йеремиев'], ['Ezekiel', 'Йезекиил'], ['Daniel', 'Даниил'],
+  ['Hosea', 'Осия'], ['Joel', 'Йоил'], ['Amos', 'Амос'], ['Obadiah', 'Авдий'], ['Jonah', 'Йона'],
+  ['Micah', 'Михей'], ['Nahum', 'Наум'], ['Habakkuk', 'Авакум'], ['Zephaniah', 'Софония'], ['Haggai', 'Агей'],
+  ['Zechariah', 'Захария'], ['Malachi', 'Малахия'], ['Matthew', 'Матей'], ['Mark', 'Марк'], ['Luke', 'Лука'],
+  ['John', 'Йоан'], ['Acts', 'Деяния'], ['Romans', 'Римляни'], ['1 Corinthians', '1 Коринтяни'],
+  ['2 Corinthians', '2 Коринтяни'], ['Galatians', 'Галатяни'], ['Ephesians', 'Ефесяни'], ['Philippians', 'Филипяни'],
+  ['Colossians', 'Колосяни'], ['1 Thessalonians', '1 Солунци'], ['2 Thessalonians', '2 Солунци'],
+  ['1 Timothy', '1 Тимотей'], ['2 Timothy', '2 Тимотей'], ['Titus', 'Тит'], ['Philemon', 'Филимон'],
+  ['Hebrews', 'Евреи'], ['James', 'Яков'], ['1 Peter', '1 Петър'], ['2 Peter', '2 Петър'], ['1 John', '1 Йоан'],
+  ['2 John', '2 Йоан'], ['3 John', '3 Йоан'], ['Jude', 'Юда'], ['Revelation', 'Откровение'],
+]
+const BIBLE_BOOKS_RX = new RegExp(
+  `(?<![A-Za-z])(${BIBLE_BOOKS.map(([en]) => en).join('|')}) (?=\\d+(?::\\d|\\b))`,
+  'g',
+)
+const BIBLE_BOOKS_MAP = new Map(BIBLE_BOOKS)
 
 const formatters = {
   en: new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }),
@@ -119,6 +157,7 @@ async function infoToRegistryItem(
     author: authorName,
     googleTrnaslate: true,
     hidden: false,
+    added: new Date().toISOString().slice(0, 10),
   }
 }
 
@@ -128,17 +167,24 @@ async function getChapters(): Promise<Partial<BookItem>[]> {
   if (await file.exists()) content = await file.json()
   else {
     content = await Promise.all(
-      Array.from({ length: 366 }).map((e, i) => gc(i + 1)),
+      Array.from({ length: toc.length }).map((e, i) => gc(i + 1)),
     )
+    // the app indexes by leap-year day of year (366 slots); a book without a
+    // February 29 reading gets an empty slot there (the app shows "no reading")
+    if (content.length === 365) content.splice(FEB_29, 0, null as any)
+    if (content.length !== 366)
+      throw new Error(`expected 365/366 chapters, got ${toc.length}`)
   }
   // day labels are deterministic; (re)write so published en.json always has them
   // the app renders plain paragraphs; drop egwlink spans etc. (verse keeps its link for the ref)
-  content = content.map((c, i) => ({
-    day: getDay(i, 'en'),
-    ...c,
-    title: stripTags(c.title!),
-    content: c.content!.map(stripTags),
-  }))
+  content = content.map((c, i) =>
+    c && {
+      day: getDay(i, 'en'),
+      ...c,
+      title: stripTags(c.title!),
+      content: c.content!.map(cleanParagraph),
+    },
+  )
   await file.write(JSON.stringify(content, null, 2))
   return content
 }
@@ -150,16 +196,18 @@ async function getChapter(n = 1): Promise<Partial<BookItem>> {
   console.time(label)
   const data = await apiClient.getChapter(TARGET_BOOK_ID, chapterId)
   const content = data
-    .filter((e) => e.element_subtype === 'standard-indented')
+    .filter((e) => CONTENT_SUBTYPES.has(e.element_subtype))
     .map((e) => e.content)
 
   console.timeEnd(label)
   return {
+    // "Where Wisdom Begins, January 2" → "Where Wisdom Begins"
     title: data
       .find((e) => e.element_type === 'h3')!
-      .content.split(/(?<=[^\w\s'])/)
-      .slice(0, -1)
-      .join(''),
+      .content.replace(
+        new RegExp(`,?\\s*(${EN_MONTHS.join('|')})\\s+\\d{1,2}\\s*$`),
+        '',
+      ),
     verse: data.find((e) => e.element_subtype === 'devotionaltext')!.content,
     content,
   }
@@ -171,8 +219,10 @@ async function translateContent() {
 
   await mkdir(PATHS.cache('bg'), { recursive: true })
 
-  const queue = chapters.map((chapter, i) => () => translateChapter(chapter, i))
-  const translated: BookItem[] = new Array(chapters.length)
+  const queue = chapters.map(
+    (chapter, i) => () => (chapter ? translateChapter(chapter, i) : null),
+  )
+  const translated: (BookItem | null)[] = new Array(chapters.length)
 
   await Promise.all(
     Array.from({ length: TRANSLATE_CONCURRENCY }).map(async () => {
@@ -229,6 +279,7 @@ async function translateChapter(
 function extractVerseRef(verse: string) {
   const text = stripTags(verse)
     .replace(/,?\s*(R\.S\.V\.|A\.R\.V\.|N\.I\.V\.|margin)\.?\s*$/i, '')
+    .replace(/Song of (Solomon|Songs)/g, 'Songs') // the only multi-word book name; the parser knows "Songs"
     .trim()
   const m = /([1-3]?\s?[A-Z][a-z]+\.?\s+\d+:[\d,\s\-–]+?)\.?$/.exec(text)
   const ref = (m?.[1] ?? /title="([^"]*)"/.exec(verse)?.[1] ?? '').trim()
@@ -247,6 +298,8 @@ function normalizeParagraph(s: string) {
   s = s.trim()
   for (const [rx, name] of PERIODICALS) s = s.replace(rx, name)
   s = s
+    .replace(BIBLE_BOOKS_RX, (_, en) => `${BIBLE_BOOKS_MAP.get(en)} `)
+    .replace(/\bIbid\.?/g, 'Пак там.')
     .replace(/\bLetter (\d+)/g, 'Писмо $1')
     .replace(/\bManuscript (\d+)/g, 'Ръкопис $1')
     .replace(
@@ -255,10 +308,20 @@ function normalizeParagraph(s: string) {
     )
     .replace(/г\.\./g, 'г.')
     .replace(/(?<!\.)\.\.$/, '...') // trailing ellipsis rendered as two dots
-  return s.replace(
-    /\s*[—–-]\s*(?=(Писмо|Ръкопис|The Review|The Signs|Пак там|Testimonies))/g,
-    ' — ',
+  return s.replace(SOURCE_DASH, ' — ')
+}
+
+/**
+ * Some compilations (e.g. TMK) put the source in an endnote superscript:
+ * `…text.<sup class="bookendnote"><a>3<span class="bookendnote">The Review and Herald, March 15, 1892.</span></a></sup>`
+ * → `…text.—The Review and Herald, March 15, 1892.` (the inline form TDG uses)
+ */
+function cleanParagraph(s: string) {
+  s = s.replace(
+    /<sup class="bookendnote">.*?<span class="bookendnote">(.*?)<\/span><\/a><\/sup>/gs,
+    (_, ref) => `—${stripTags(ref)}`,
   )
+  return stripTags(s)
 }
 
 function stripTags(s: string) {

@@ -8,7 +8,8 @@
     "id": "tdg",
     "name": "Този ден с Бога",
     "author": "Елън Уайт",
-    "googleTrnaslate": true
+    "googleTrnaslate": true,
+    "added": "2026-10-09"
   },
   {
     "id": "ul",
@@ -45,5 +46,13 @@
     "author": "Елън Уайт",
     "googleTrnaslate": "true",
     "hidden": "true"
+  },
+  {
+    "id": "tmk",
+    "name": "За да Го позная",
+    "author": "Елън Уайт",
+    "googleTrnaslate": true,
+    "hidden": false,
+    "added": "2026-10-09"
   }
 ]
