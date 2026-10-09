@@ -25,3 +25,4 @@ logs
 temp
 # EGW auth tokens written by scripts/translator
 data
+data/tokens.json
