@@ -16,7 +16,33 @@ import type { BookItem, RegistryItem } from '~/utils/types'
 import { enhanceFetchPromise, forceAsyncChain } from './utils'
 import { bibles } from './bible'
 import { t } from './t'
+import { geminiTranslateSafe } from './gemini'
 const gc = forceAsyncChain(getChapter, 200)
+
+const TRANSLATE_CONCURRENCY = 6
+
+const EN_MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+const BG_MONTHS = [
+  'януари', 'февруари', 'март', 'април', 'май', 'юни',
+  'юли', 'август', 'септември', 'октомври', 'ноември', 'декември',
+]
+const PERIODICALS: [RegExp, string][] = [
+  [/(The )?Review and Herald|„?Ревю енд Хералд“?/g, 'The Review and Herald'],
+  [/(The )?Signs of the Times|„?Знамения на времето“?/g, 'The Signs of the Times'],
+]
+
+const formatters = {
+  en: new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }),
+  bg: new Intl.DateTimeFormat('bg-BG', { month: 'long', day: 'numeric' }),
+}
+
+
+const CONTEXT = `The text is a daily devotional by Ellen G. White (Seventh-day Adventist author), one short reading per day.
+- When a sentence quotes Scripture, render it in the wording of the standard Bulgarian Protestant Bible (Ревизирано издание) rather than translating freely.
+- Translate the source reference at the end of a reading fully into Bulgarian: "Letter" → "Писмо", "Manuscript" → "Ръкопис", month names and descriptions of recipients in Bulgarian; keep numbers, dates, and personal names (transliterated). Example: "Letter 12, April 1, 1903, to members of the Nashville church." → "Писмо 12, 1 април 1903 г., до членовете на църквата в Нашвил."`
 
 // console.log(await bibles.loadPassage(' 1:1'))
 const toc = await getToc()
@@ -27,7 +53,7 @@ await getCover()
 
 const chapters = await getChapters()
 
-translateContent()
+await translateContent()
 
 await publish()
 
@@ -75,25 +101,47 @@ async function getInfo(): Promise<Book> {
   return data
 }
 
-async function infoToRegistryItem(): RegistryItem {
+async function infoToRegistryItem(
+  existing?: RegistryItem,
+): Promise<RegistryItem> {
   const { title, code, author } = info
+
+  if (existing) {
+    // keep the curated name/author; the book is no longer machine-translated by Google
+    const { googleTrnaslate, ...rest } = existing
+    return rest
+  }
+
+  const [name, authorName] = await geminiTranslateSafe([title, author], {
+    context: 'These are a book title and an author name.',
+  })
 
   return {
     id: code.toLowerCase(),
-    name: await t(title),
-    author: await t(author),
-    googleTrnaslate: true,
+    name,
+    author: authorName,
     hidden: false,
   }
 }
 
 async function getChapters(): Promise<Partial<BookItem>[]> {
   const file = Bun.file(PATHS.content('en'))
-  if (await file.exists()) return file.json()
-  const content = await Promise.all(
-    Array.from({ length: 366 }).map((e, i) => gc(i + 1)),
-  )
-  file.write(JSON.stringify(content, null, 2))
+  let content: Partial<BookItem>[]
+  if (await file.exists()) content = await file.json()
+  else {
+    content = await Promise.all(
+      Array.from({ length: 366 }).map((e, i) => gc(i + 1)),
+    )
+  }
+  // day labels are deterministic; (re)write so published en.json always has them
+  // the app renders plain paragraphs; drop egwlink spans etc. (verse keeps its link for the ref)
+  content = content.map((c, i) => ({
+    day: getDay(i, 'en'),
+    ...c,
+    title: stripTags(c.title!),
+    content: c.content!.map(stripTags),
+  }))
+  await file.write(JSON.stringify(content, null, 2))
   return content
 }
 
@@ -123,41 +171,109 @@ async function translateContent() {
   const file = Bun.file(PATHS.content('bg'))
   if (await file.exists()) return await file.json()
 
-  const separator = `\n`.repeat(10)
+  await mkdir(PATHS.cache('bg'), { recursive: true })
 
-  const translated = await Promise.all(
-    chapters.map(async (chapter) => {
-      chapter = structuredClone(chapter)
+  const queue = chapters.map((chapter, i) => () => translateChapter(chapter, i))
+  const translated: BookItem[] = new Array(chapters.length)
 
-      const label = `Translating Chapter: ${chapter.title}`
-      console.time(label)
-      const translated = await t(
-        [chapter.title, ...chapter.content!].join(separator),
-      )
-      console.timeEnd(label)
-
-      const [title, ...content] = translated
-        .split(separator)
-        .map((e) => e.trim())
-
-      const verse = /title="([^"]*)"/.exec(chapter.verse!)?.[1]!
-      const passage = await bibles.loadPassage(verse)
-
-      if (!passage) console.warn('Passage not found:', verse)
-
-      return Object.assign(chapter, {
-        title,
-        verse: `${passage.verses.join(' ')} (${passage.title})`,
-        content,
-      })
+  await Promise.all(
+    Array.from({ length: TRANSLATE_CONCURRENCY }).map(async () => {
+      while (queue.length) {
+        const i = chapters.length - queue.length
+        translated[i] = await queue.shift()!()
+      }
     }),
   )
 
   await file.write(JSON.stringify(translated, null, 2))
 }
 
+async function translateChapter(
+  chapter: Partial<BookItem>,
+  i: number,
+): Promise<BookItem> {
+  const cacheFile = Bun.file(`${PATHS.cache('bg')}/${i + 1}.json`)
+  if (await cacheFile.exists()) {
+    const cached = (await cacheFile.json()) as BookItem
+    return { ...cached, content: cached.content.map(normalizeParagraph) }
+  }
+
+  const label = `Translating ${i + 1}: ${chapter.title}`
+  console.time(label)
+  const [title, ...content] = await geminiTranslateSafe(
+    [chapter.title!, ...chapter.content!],
+    { context: CONTEXT },
+  )
+  console.timeEnd(label)
+
+  const ref = extractVerseRef(chapter.verse!)
+  const passage = await bibles.loadPassage(ref)
+  if (!passage) console.warn('Passage not found:', ref)
+
+  const result: BookItem = {
+    day: getDay(i, 'bg'),
+    title: title.trim(),
+    verse: passage
+      ? `${stripTags(passage.verses.join(' '))} (${passage.title})`
+      : ref,
+    content: content.map((e) => normalizeParagraph(e)),
+  }
+
+  await cacheFile.write(JSON.stringify(result, null, 2))
+  return result
+}
+
+/**
+ * "…strength. Isaiah 26:3, 4." → "Isaiah 26:3-4"
+ * Prefers the printed reference at the end of the verse text (it covers the
+ * whole quoted range); falls back to the egwlink title (first verse only).
+ */
+function extractVerseRef(verse: string) {
+  const text = stripTags(verse)
+    .replace(/,?\s*(R\.S\.V\.|A\.R\.V\.|N\.I\.V\.|margin)\.?\s*$/i, '')
+    .trim()
+  const m = /([1-3]?\s?[A-Z][a-z]+\.?\s+\d+:[\d,\s\-–]+?)\.?$/.exec(text)
+  const ref = (m?.[1] ?? /title="([^"]*)"/.exec(verse)?.[1] ?? '').trim()
+  // "26:3, 4, 5" → "26:3-5" (the parser treats comma lists as separate passages)
+  return ref.replace(/(\d+):(\d+)((?:,\s*\d+)+)$/, (_, ch, from, rest) => {
+    const last = rest.split(',').map((e: string) => e.trim()).filter(Boolean).at(-1)
+    return `${ch}:${from}-${last}`
+  })
+}
+
+/**
+ * Make the closing source reference uniform, whatever the model did with it:
+ * em dash, "Писмо"/"Ръкопис", Bulgarian dates, canonical periodical titles.
+ */
+function normalizeParagraph(s: string) {
+  s = s.trim()
+  for (const [rx, name] of PERIODICALS) s = s.replace(rx, name)
+  s = s
+    .replace(/\bLetter (\d+)/g, 'Писмо $1')
+    .replace(/\bManuscript (\d+)/g, 'Ръкопис $1')
+    .replace(
+      new RegExp(`\\b(${EN_MONTHS.join('|')}) (\\d{1,2}), (\\d{4})\\b`, 'g'),
+      (_, m, d, y) => `${d} ${BG_MONTHS[EN_MONTHS.indexOf(m)]} ${y} г.`,
+    )
+    .replace(/г\.\./g, 'г.')
+    .replace(/(?<!\.)\.\.$/, '...') // trailing ellipsis rendered as two dots
+  return s.replace(
+    /\s*[—–-]\s*(?=(Писмо|Ръкопис|The Review|The Signs|Пак там|Testimonies))/g,
+    ' — ',
+  )
+}
+
+function stripTags(s: string) {
+  return s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+}
+
 async function publish() {
-  const item = await infoToRegistryItem()
+  const registryFile = Bun.file(PATHS.registry)
+  const registry = (await registryFile.json()) as RegistryItem[]
+  const existingIndex = registry.findIndex(
+    (e) => e.id === info.code.toLowerCase(),
+  )
+  const item = await infoToRegistryItem(registry[existingIndex])
 
   const bundleDir = PATHS.bundle
 
@@ -183,10 +299,6 @@ async function publish() {
       ),
   )
 
-  const registryFile = Bun.file(PATHS.registry)
-  const registry = (await registryFile.json()) as RegistryItem[]
-
-  const existingIndex = registry.findIndex((e) => e.id === item.id)
 
   if (!~existingIndex) registry.push(item)
   else registry.splice(existingIndex, 1, item)
@@ -194,13 +306,8 @@ async function publish() {
   await registryFile.write(JSON.stringify(registry, null, 2))
 }
 
-const formatter = new Intl.DateTimeFormat('en-US', {
-  month: 'long',
-  day: 'numeric',
-})
-
-function getDay(i: number) {
-  const yearStart = new Date(2004, 0, 1)
-  const date = new Date(+yearStart + i * 86400000)
-  return formatter.format(date)
+/** i = 0-based day of a leap year → "January 1" / "1 януари" */
+function getDay(i: number, lang: keyof typeof formatters) {
+  const date = new Date(2004, 0, 1 + i)
+  return formatters[lang].format(date)
 }

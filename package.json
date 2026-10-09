@@ -14,9 +14,12 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "generate-pwa-assets": "pwa-assets-generator",
+    "process": "bun run ./scripts/translator",
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@surgbc/egw-writings-shared": "^1.0.0",
+    "@types/bun": "^1.3.6",
     "nuxt": "^3.10.3",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"

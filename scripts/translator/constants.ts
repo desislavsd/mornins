@@ -10,6 +10,7 @@ export const PATHS = {
   toc: `${WORKSPACE}/toc.json`,
   info: `${WORKSPACE}/info.json`,
   content: (lang = 'en') => `${WORKSPACE}/bundle/${lang}.json`,
+  cache: (lang = 'bg') => `${WORKSPACE}/gemini-${lang}`,
   cover: (ext: string) => `${WORKSPACE}/bundle/img.${ext}`,
   registry: './assets/registry.json',
   publish: (info: RegistryItem) => `./public/books/${info.id}`,
